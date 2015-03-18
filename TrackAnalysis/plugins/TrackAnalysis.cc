@@ -150,6 +150,7 @@ void TrackAnalysis::analyze(const edm::Event& iEvent,      // contains event by 
                             const edm::EventSetup& iSetup) // contains the overall the information, as nb of event, lumi, etc.
 {
     using namespace edm;
+    cout << "Hello World" << endl;
 
     Handle<reco::TrackCollection> trackcollection;
     iEvent.getByLabel(generalTrack_label,trackcollection);
