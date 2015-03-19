@@ -13,18 +13,20 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-42) )
 # input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:/afs/desy.de/user/c/connorpa/CMSSW/CMSSW_7_4_0_pre8/src/MinBias/TrackAnalysis/test/file_track_test.root'
+        'file:/afs/desy.de/user/c/connorpa/CMSSW/CMSSW_7_4_0_pre8/src/MinBias/TrackAnalysis/data/file_track_test.root'
     )
 )
 
 # ouput
 process.TFileService = cms.Service("TFileService",
-        fileName = cms.string("/afs/desy.de/user/c/connorpa/CMSSW/CMSSW_7_4_0_pre8/src/MinBias/TrackAnalysis/test/trackanalysis_output.root")
+        fileName = cms.string("/afs/desy.de/user/c/connorpa/CMSSW/CMSSW_7_4_0_pre8/src/MinBias/TrackAnalysis/data/trackanalysis_output.root")
         #closeFileFast = cms.untracked.bool(True)
         )
 
 process.trackanalysis = cms.EDAnalyzer('TrackAnalysis',
-                                       generalTrack_label = cms.InputTag("generalTracks", "", "RECO")
+                                       generalTrack_label = cms.InputTag("generalTracks", "", "RECO"),
+                                       beamSpot_label     = cms.InputTag("offlineBeamSpot", "", "RECO"),
+                                       offlinePrimaryVertex_label = cms.InputTag("offlinePrimaryVertices", "", "RECO")
 )
 
 
