@@ -20,11 +20,11 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-#include "./CastorTree.h"
+#include "./TrackAnalysisTree.h"
 
 bool GenPartDebug = false;
 
-void CastorTree::GetGenPart(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void TrackAnalysisTree::GetGenPart(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace std;
   using namespace edm;
@@ -42,15 +42,15 @@ void CastorTree::GetGenPart(const edm::Event& iEvent, const edm::EventSetup& iSe
    iEvent.getByLabel(genPartColl_, genParticles);
   
    if (!genParticles.isValid()) {
-     cerr << "CastorTree::GetGenPart] Error: non valid GenParticleCollection " << endl;
+     cerr << "TrackAnalysisTree::GetGenPart] Error: non valid GenParticleCollection " << endl;
      return;
    }
 
    //-- position of the simulated primary vertex
-   math::XYZPoint PosPVsim = (*genParticles)[2].vertex();
+   math::XYZPoint PosPVsim = (*genParticles)[2].vertex(); // QUESTION
 
    simVertex.x = PosPVsim.X();
-   simVertex.y = PosPVsim.Y();
+   simVertex.y = PosPVsim.Y();  // QUESTION
    simVertex.z = PosPVsim.Z();
 
    if(GenPartDebug) simVertex.Print();
@@ -78,7 +78,7 @@ void CastorTree::GetGenPart(const edm::Event& iEvent, const edm::EventSetup& iSe
    }
 }
 
-void CastorTree::FillGenPart(const reco::GenParticle& ingp, MyGenPart& outgp){
+void TrackAnalysisTree::FillGenPart(const reco::GenParticle& ingp, MyGenPart& outgp){
 
   //-- filling inherited from MyPart
   outgp.SetPxPyPzE( ingp.px() , ingp.py() , ingp.pz() , ingp.energy() );

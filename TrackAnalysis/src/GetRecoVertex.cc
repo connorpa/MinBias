@@ -15,11 +15,11 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "./CastorTree.h"
+#include "./TrackAnalysisTree.h"
 
 bool RecoVtxDebug = false;
 
-void CastorTree::GetRecoVertex(const edm::Event& iEvent, const char VertexCollName[60], vector<MyVertex>& VertexVector) {
+void TrackAnalysisTree::GetRecoVertex(const edm::Event& iEvent, const char VertexCollName[60], vector<MyVertex>& VertexVector) {
 
    using namespace std;
    using namespace edm;

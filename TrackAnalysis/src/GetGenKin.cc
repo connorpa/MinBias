@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "./CastorTree.h"
+#include "./TrackAnalysisTree.h"
 
 //-- DataFormats
 #include "DataFormats/Common/interface/Handle.h"
@@ -26,7 +26,7 @@
 
 bool GenKinDebug = false;
 
-void CastorTree::GetGenKin(const edm::Event& iEvent) {
+void TrackAnalysisTree::GetGenKin(const edm::Event& iEvent) {
 
    using namespace std;
    using namespace edm;

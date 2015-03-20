@@ -6,7 +6,9 @@ using namespace std;
 
 ClassImp(MyGenKin)
 
-MyGenKin::MyGenKin() { }
+MyGenKin::MyGenKin() {
+    this->Reset();
+}
 
 MyGenKin::~MyGenKin() { }
 
