@@ -30,12 +30,12 @@ TrackAnalysisTree::TrackAnalysisTree(const edm::ParameterSet& iConfig) {
   genPartColl_ = iConfig.getParameter<edm::InputTag>("genPartColl");
   hepMCColl_ = iConfig.getParameter<edm::InputTag>("hepMCColl");
 
-  L1GT_TrigMenuLite_Prov_ = iConfig.getParameter<bool>("L1GT_TrigMenuLite_Prov");
-  L1GT_TrigMenuLite_ = iConfig.getParameter<edm::InputTag>("L1GT_TrigMenuLite");
-  L1GT_ObjectMap_ = iConfig.getParameter<edm::InputTag>("L1GT_ObjectMap");
+  //L1GT_TrigMenuLite_Prov_ = iConfig.getParameter<bool>("L1GT_TrigMenuLite_Prov");
+  //L1GT_TrigMenuLite_ = iConfig.getParameter<edm::InputTag>("L1GT_TrigMenuLite");
+  //L1GT_ObjectMap_ = iConfig.getParameter<edm::InputTag>("L1GT_ObjectMap");
 
   //CastorDigiColl_ = iConfig.getParameter<edm::InputTag>("CastorDigiColl");
-  CastorRecHitColl_ = iConfig.getParameter<edm::InputTag>("CastorRecHitColl");
+  //CastorRecHitColl_ = iConfig.getParameter<edm::InputTag>("CastorRecHitColl");
   //CastorTower_ = iConfig.getParameter<edm::InputTag>("CastorTowerColl");
   //BasicJet_ = iConfig.getParameter<edm::InputTag>("BasicJet");
   //CastorJetID_ = iConfig.getParameter<edm::InputTag>("CastorJetID");
@@ -69,16 +69,16 @@ TrackAnalysisTree::TrackAnalysisTree(const edm::ParameterSet& iConfig) {
   //CaloTower_ = iConfig.getParameter<edm::InputTag>("CaloTowerColl");
 
   //-- HLT triggers requested by user
-  hlt_bits = iConfig.getParameter<vector<string> >("requested_hlt_bits"); // QUESTION
+  //hlt_bits = iConfig.getParameter<vector<string> >("requested_hlt_bits"); // QUESTION
 
   //-- filter triggers requested by user
-  filter_bits = iConfig.getParameter<vector<string> >("requested_filter_bits");
+  //filter_bits = iConfig.getParameter<vector<string> >("requested_filter_bits");
 
   //-- needed to retrieve HLT triggers
-  isValidHLTConfig_ = false;
+  //isValidHLTConfig_ = false;
 
   //-- needed to read Filter results
-  FilterResults_ = iConfig.getParameter<edm::InputTag>("FilterResults");
+  //FilterResults_ = iConfig.getParameter<edm::InputTag>("FilterResults");
 }
 
 
