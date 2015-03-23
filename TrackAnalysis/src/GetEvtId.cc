@@ -13,11 +13,11 @@
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 
-#include "./CastorTree.h"
+#include "./TrackAnalysisTree.h"
 
 bool EvtIdDebug = false;
 
-void CastorTree::GetEvtId(const edm::Event& iEvent) {
+void TrackAnalysisTree::GetEvtId(const edm::Event& iEvent) {
 	
 	using namespace std;
 	

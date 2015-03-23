@@ -14,11 +14,11 @@
 //-- Beam Spot
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-#include "./CastorTree.h"
+#include "./TrackAnalysisTree.h"
 
 bool BeamSpotDebug = false;
 
-void CastorTree::GetBeamSpot(const edm::Event& iEvent) {
+void TrackAnalysisTree::GetBeamSpot(const edm::Event& iEvent) {
 
    using namespace std;
    using namespace edm;

@@ -78,17 +78,17 @@ void TrackAnalysisTree::GetGenPart(const edm::Event& iEvent, const edm::EventSet
    }
 }
 
-void TrackAnalysisTree::FillGenPart(const reco::GenParticle& ingp, MyGenPart& outgp){
-
-  //-- filling inherited from MyPart
-  outgp.SetPxPyPzE( ingp.px() , ingp.py() , ingp.pz() , ingp.energy() );
-  outgp.charge  = ingp.charge();
-
-  //-- extra properties
-  outgp.pdgId   = ingp.pdgId();
-  outgp.status  = ingp.status();
-  //outgp.name    = (pdt->particle(ingp.pdgId()))->name(); //-- FIXME: crashes the code ...
-  outgp.name = "dummy";
-
-}
+//void TrackAnalysisTree::FillGenPart(const reco::GenParticle& ingp, MyGenPart& outgp){
+//
+//  //-- filling inherited from MyPart
+//  outgp.SetPxPyPzE( ingp.px() , ingp.py() , ingp.pz() , ingp.energy() );
+//  outgp.charge  = ingp.charge();
+//
+//  //-- extra properties
+//  outgp.pdgId   = ingp.pdgId();
+//  outgp.status  = ingp.status();
+//  //outgp.name    = (pdt->particle(ingp.pdgId()))->name(); //-- FIXME: crashes the code ...
+//  outgp.name = "dummy";
+//
+//}
 

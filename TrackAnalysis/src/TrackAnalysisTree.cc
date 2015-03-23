@@ -97,8 +97,8 @@ void TrackAnalysisTree::analyze(const edm::Event& iEvent, const edm::EventSetup&
   
   //-- General Information
   GetEvtId(iEvent);
-  GetL1Trig(iEvent,iSetup);
-  GetHLTrig(iEvent,iSetup);
+  //GetL1Trig(iEvent,iSetup);
+  //GetHLTrig(iEvent,iSetup);
   
   //-- MC Information
   if(StoreGenKine) GetGenKin(iEvent);
@@ -111,8 +111,8 @@ void TrackAnalysisTree::analyze(const edm::Event& iEvent, const edm::EventSetup&
   GetRecoVertex(iEvent,"offlinePrimaryVertices",primaryVertex);
 
   //-- Castor Information
-  if(StoreCastorDigi) GetCastorDigi(iEvent,iSetup,castorDigi);
-  GetCastorRecHit(iEvent,castorRecHit);
+  //if(StoreCastorDigi) GetCastorDigi(iEvent,iSetup,castorDigi);
+  //GetCastorRecHit(iEvent,castorRecHit);
   //GetCastorTower(iEvent,castorTower);
   //if(StoreCastorJet) GetCastorJet(iEvent,castorJet);
   
@@ -140,13 +140,13 @@ void TrackAnalysisTree::beginJob() {
 
   //-- General Information
   tree->Branch("EvtId",&EvtId);
-  tree->Branch("L1Trig",&L1Trig);
-  tree->Branch("HLTrig",&HLTrig);
+  //tree->Branch("L1Trig",&L1Trig);
+  //tree->Branch("HLTrig",&HLTrig);
 
   //-- MC Information
   if(StoreGenKine) tree->Branch("GenKin",&GenKin);
   if(StoreGenPart) tree->Branch("GenPart",&GenPart);
-  if(StoreGenPart) tree->Branch("simVertex",&simVertex);
+  //if(StoreGenPart) tree->Branch("simVertex",&simVertex);
   //if(StoreGenJet) tree->Branch("GenJet",&GenJet);
   //if(StoreGenJet) tree->Branch("ChargedGenJet",&ChargedGenJet);
 
@@ -174,13 +174,13 @@ void TrackAnalysisTree::beginJob() {
 
 
 //-- method called to for each run
-void TrackAnalysisTree::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup){
-  using namespace std;
-  using namespace edm;
-
-  bool changed = true;
-  isValidHLTConfig_ = hltConfig.init(iRun,iSetup,"HLT",changed); // QUESTION
-}
+//void TrackAnalysisTree::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup){
+//  using namespace std;
+//  using namespace edm;
+//
+//  bool changed = true;
+//  isValidHLTConfig_ = hltConfig.init(iRun,iSetup,"HLT",changed); // QUESTION
+//}
 
 
 
