@@ -30,10 +30,10 @@ using namespace std;
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 //-- Trigger
-#include "FWCore/Common/interface/TriggerNames.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h" // QUESTION
+//#include "FWCore/Common/interface/TriggerNames.h"
+//#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+//#include "DataFormats/Common/interface/TriggerResults.h"
+//#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h" // QUESTION
 
 #include "./MyPart.h"
 
@@ -43,14 +43,14 @@ using namespace std;
 //#include "./MyHLTrig.h"
 
 //-- Gen Objects
-#include "./MyGenKin.h"
+//#include "./MyGenKin.h"
 #include "./MyGenPart.h"
 //#include "./MyGenJet.h"
 
 //-- vertex
-//#include "./MyBeamSpot.h"
+#include "./MyBeamSpot.h"
 #include "./MyVertex.h"
-//#include "./MySimVertex.h"
+#include "./MySimVertex.h"
 
 ////-- Jets
 //#include "DataFormats/JetReco/interface/Jet.h"
@@ -94,13 +94,13 @@ class TrackAnalysisTree : public edm::EDAnalyzer {
         ///virtual void GetHLTrig(const edm::Event&, const edm::EventSetup&);
         bool hasFired(const std::string& triggerName, const edm::TriggerNames& triggerNames, const edm::TriggerResults& triggerResults) const;
 
-        virtual void GetGenKin(const edm::Event&);
+        //virtual void GetGenKin(const edm::Event&);
         virtual void GetGenPart(const edm::Event&, const edm::EventSetup&);      
         //virtual void FillGenPart(const reco::GenParticle&, MyGenPart&);
         //virtual void GetGenJet(const edm::Event&, const edm::InputTag&, vector<MyGenJet>&);
 
         virtual void GetRecoVertex(const edm::Event&, const char[60], vector<MyVertex>&); 
-        //virtual void GetBeamSpot(const edm::Event&);
+        virtual void GetBeamSpot(const edm::Event&);
 
         //virtual void GetCastorDigi(const edm::Event&, const edm::EventSetup&, vector<MyCastorDigi>&);
         //virtual void GetCastorRecHit(const edm::Event&, vector<MyCastorRecHit>&);
@@ -125,7 +125,7 @@ class TrackAnalysisTree : public edm::EDAnalyzer {
 
         //-- Modules to execute
 
-        bool StoreGenKine;
+        //bool StoreGenKine;
         bool StoreGenPart;
         //bool StoreGenJet;
         //bool StoreCastorDigi;
@@ -133,7 +133,7 @@ class TrackAnalysisTree : public edm::EDAnalyzer {
 
         //-- Collection to retrieve
 
-        edm::InputTag hepMCColl_;
+        //edm::InputTag hepMCColl_;
         edm::InputTag genPartColl_;
 
         //bool L1GT_TrigMenuLite_Prov_;
@@ -174,8 +174,8 @@ class TrackAnalysisTree : public edm::EDAnalyzer {
         //edm::InputTag CaloTower_;
 
         //-- HLT triggers requested by user
-        vector<string> hlt_bits;
-        vector<string> filter_bits;
+        //vector<string> hlt_bits;
+        //vector<string> filter_bits;
 
         //-- needed to retrieve HLT triggers
         //HLTConfigProvider hltConfig;
@@ -195,14 +195,14 @@ class TrackAnalysisTree : public edm::EDAnalyzer {
         //MyHLTrig HLTrig;
 
         //-- MC Information
-        MyGenKin GenKin;
+        //MyGenKin GenKin;
         vector<MyGenPart> GenPart;
-        //MySimVertex simVertex;
+        MySimVertex simVertex;
         //vector<MyGenJet> GenJet;
         //vector<MyGenJet> ChargedGenJet;
 
         //-- Reco Vertex Information
-        //MyBeamSpot beamSpot;
+        MyBeamSpot beamSpot;
         vector<MyVertex> primaryVertex;     
 
         //-- Castor Information

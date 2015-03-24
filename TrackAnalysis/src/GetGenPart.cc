@@ -19,6 +19,7 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+//#include "HepPDT/ParticleDataTable.h"
 
 #include "./TrackAnalysisTree.h"
 
@@ -34,8 +35,8 @@ void TrackAnalysisTree::GetGenPart(const edm::Event& iEvent, const edm::EventSet
   GenPart.clear();
 
   //-- Handle to access PDG data from iSetup
-  ESHandle <ParticleDataTable> pdt;
-  iSetup.getData(pdt);
+  //ESHandle <HepPDT::ParticleDataTable> pdt;
+  //iSetup.getData(pdt);
 
    //-- Handle to access GenParticleCollection
    Handle<GenParticleCollection> genParticles;
@@ -70,7 +71,7 @@ void TrackAnalysisTree::GetGenPart(const edm::Event& iEvent, const edm::EventSet
      //-- extra properties
      genpart.pdgId   = p->pdgId();
      genpart.status  = p->status();
-     genpart.name    = (pdt->particle(p->pdgId()))->name();
+     //genpart.name    = (pdt->particle(p->pdgId()))->name();
 
      //-- store if status = 1
      if(st==1) GenPart.push_back(genpart);

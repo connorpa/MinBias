@@ -53,8 +53,8 @@ process.trackanalysistree = cms.EDAnalyzer('TrackAnalysisTree',
 
    #L1GT_ObjectMap = cms.InputTag('hltL1GtObjectMap','','HLT'),
 
-   hepMCColl = cms.InputTag('generator','','HLT'),
-   genPartColl = cms.InputTag('genParticles','','HLT'),
+   #hepMCColl = cms.InputTag('generator','','HLT'),
+   genPartColl = cms.InputTag('genParticles','','SIM'),
 
    #CastorTowerColl = cms.InputTag('CastorTowerReco', '','RECO'),
    #CastorDigiColl = cms.InputTag('castorDigis', '','RECO'),
@@ -83,4 +83,4 @@ process.trackanalysistree = cms.EDAnalyzer('TrackAnalysisTree',
 )
 
 
-process.p = cms.Path(process.trackanalysis)
+process.p = cms.Path(process.trackanalysistree)

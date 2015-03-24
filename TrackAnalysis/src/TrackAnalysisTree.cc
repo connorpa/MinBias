@@ -20,7 +20,7 @@ TrackAnalysisTree::TrackAnalysisTree(const edm::ParameterSet& iConfig) {
   //-- do what ever initialization is needed
 
   //-- Modules to execute 
-  StoreGenKine = iConfig.getParameter<bool>("StoreGenKine");
+  //StoreGenKine = iConfig.getParameter<bool>("StoreGenKine");
   StoreGenPart = iConfig.getParameter<bool>("StoreGenPart");
   //StoreGenJet = iConfig.getParameter<bool>("StoreGenJet");
   //StoreCastorDigi = iConfig.getParameter<bool>("StoreCastorDigi");
@@ -28,7 +28,7 @@ TrackAnalysisTree::TrackAnalysisTree(const edm::ParameterSet& iConfig) {
 
   //-- define Collection
   genPartColl_ = iConfig.getParameter<edm::InputTag>("genPartColl");
-  hepMCColl_ = iConfig.getParameter<edm::InputTag>("hepMCColl");
+  //hepMCColl_ = iConfig.getParameter<edm::InputTag>("hepMCColl");
 
   //L1GT_TrigMenuLite_Prov_ = iConfig.getParameter<bool>("L1GT_TrigMenuLite_Prov");
   //L1GT_TrigMenuLite_ = iConfig.getParameter<edm::InputTag>("L1GT_TrigMenuLite");
@@ -101,7 +101,7 @@ void TrackAnalysisTree::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //GetHLTrig(iEvent,iSetup);
   
   //-- MC Information
-  if(StoreGenKine) GetGenKin(iEvent);
+  //if(StoreGenKine) GetGenKin(iEvent);
   if(StoreGenPart) GetGenPart(iEvent,iSetup);
   //if(StoreGenJet) GetGenJet(iEvent,GenJetColl_,GenJet);
   //if(StoreGenJet) GetGenJet(iEvent,ChargedGenJetColl_,ChargedGenJet);
@@ -144,9 +144,9 @@ void TrackAnalysisTree::beginJob() {
   //tree->Branch("HLTrig",&HLTrig);
 
   //-- MC Information
-  if(StoreGenKine) tree->Branch("GenKin",&GenKin);
+  //if(StoreGenKine) tree->Branch("GenKin",&GenKin);
   if(StoreGenPart) tree->Branch("GenPart",&GenPart);
-  //if(StoreGenPart) tree->Branch("simVertex",&simVertex);
+  if(StoreGenPart) tree->Branch("simVertex",&simVertex);
   //if(StoreGenJet) tree->Branch("GenJet",&GenJet);
   //if(StoreGenJet) tree->Branch("ChargedGenJet",&ChargedGenJet);
 
