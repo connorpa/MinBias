@@ -30,9 +30,9 @@ void TrackAnalysisTree::GetRecoVertex(const edm::Event& iEvent) {
    MyVertex myvertex;
 
    Handle<VertexCollection> vtxcoll;
-   iEvent.getByLabel(VertexColl_,vtxcoll);
+   iEvent.getByLabel(vertexColl_,vtxcoll);
 
-   if (RecoVtxDebug) cout<<"name of the requested vertex collection: "<<VertexCollName<<endl;
+   //if (RecoVtxDebug) cout<<"name of the requested vertex collection: "<<VertexCollName<<endl;
 
    for(VertexCollection::const_iterator pv = vtxcoll->begin(); pv!= vtxcoll->end(); ++pv)
    {

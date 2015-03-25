@@ -8,6 +8,10 @@ MyTrack::MyTrack(){
   this->Reset();
 }
 
+MyTrack::MyTrack(Double_t x, Double_t y, Double_t z)
+    :   TVector3(x,y,z)
+{}
+
 MyTrack::~MyTrack(){}
 
 void MyTrack::Reset(){

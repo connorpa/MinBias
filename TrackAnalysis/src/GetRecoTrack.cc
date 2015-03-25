@@ -35,7 +35,7 @@ void TrackAnalysisTree::GetRecoTrack(const edm::Event& iEvent)
     RecoTrack.clear();
 
     Handle<TrackCollection> trackcollection;
-    iEvent.getByLabel(generalTrack,trackcollection);
+    iEvent.getByLabel(generalTracksColl_,trackcollection);
 
     //if (!trackcollection.isValid()) {
     //    cerr << "TrackAnalysisTree::GetGenPart] Error: non valid GenParticleCollection " << endl;
@@ -47,14 +47,9 @@ void TrackAnalysisTree::GetRecoTrack(const edm::Event& iEvent)
 
     for(TrackCollection::const_iterator p = trackcollection->begin(); p != trackcollection->end(); ++ p) {
 
-        int st = p->status();
-        MyTrack track;
-
-        track.SetPxPyPz(p->px(),p->py(),p->pz());
+        MyTrack track(p->px(),p->py(),p->pz());
         track.charge  = p->charge();
-
-        //-- store if status = 1
-        if(st==1) RecoTrack.push_back(track);
-        if(st==1 && RecoTrackDebug)   track.Print();
+        RecoTrack.push_back(track);
+        if(RecoTrackDebug)   track.Print();
     }
 }

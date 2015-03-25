@@ -1,12 +1,13 @@
 #ifndef __MyTrack_H__
 #define __MyTrack_H__
 
-#include "TLorentzVector.h"
+#include "TVector3.h"
 
 class MyTrack : public TVector3 {
   
  public :
   MyTrack();
+  MyTrack(Double_t x, Double_t y, Double_t z);
   virtual ~MyTrack();
 
   virtual void Reset();

@@ -140,7 +140,7 @@ class TrackAnalysisTree : public edm::EDAnalyzer {
         //edm::InputTag hepMCColl_;
         edm::InputTag genPartColl_,
                       vertexColl_,
-                      generalTracks;
+                      generalTracksColl_;
 
         //bool L1GT_TrigMenuLite_Prov_;
         //edm::InputTag L1GT_TrigMenuLite_;
@@ -204,7 +204,7 @@ class TrackAnalysisTree : public edm::EDAnalyzer {
         //MyGenKin GenKin;
         MySimVertex simVertex;
         vector<MyGenPart> GenPart;
-        vector<MyPart>    RecoTrack;
+        vector<MyTrack>    RecoTrack;
         //vector<MyGenJet> GenJet;
         //vector<MyGenJet> ChargedGenJet;
 

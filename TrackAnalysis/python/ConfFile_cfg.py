@@ -54,8 +54,8 @@ process.trackanalysistree = cms.EDAnalyzer('TrackAnalysisTree',
    #L1GT_ObjectMap = cms.InputTag('hltL1GtObjectMap','','HLT'),
 
    #hepMCColl = cms.InputTag('generator','','HLT'),
-   genParticles =           cms.InputTag("genParticles"          , "", "SIM" ),
-   generalTrack =           cms.InputTag("generalTracks"         , "", "RECO"),
+   genParticles           = cms.InputTag("genParticles"          , "", "SIM" ),
+   generalTracks          = cms.InputTag("generalTracks"         , "", "RECO"),
    offlinePrimaryVertices = cms.InputTag("offlinePrimaryVertices", "", "RECO")
 
    #CastorTowerColl = cms.InputTag('CastorTowerReco', '','RECO'),
