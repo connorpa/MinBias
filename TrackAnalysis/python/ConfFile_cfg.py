@@ -42,8 +42,8 @@ process.TFileService = cms.Service("TFileService",
 
 process.trackanalysistree = cms.EDAnalyzer('TrackAnalysisTree',
 
-   StoreGenKine = cms.bool(True),
-   StoreGenPart = cms.bool(True),
+   #StoreGenKine = cms.bool(True),
+   StoreGenPart  = cms.bool(True),
 
 
    # input tag for L1GtTriggerMenuLite retrieved from provenance
@@ -54,7 +54,9 @@ process.trackanalysistree = cms.EDAnalyzer('TrackAnalysisTree',
    #L1GT_ObjectMap = cms.InputTag('hltL1GtObjectMap','','HLT'),
 
    #hepMCColl = cms.InputTag('generator','','HLT'),
-   genPartColl = cms.InputTag('genParticles','','SIM'),
+   genParticles =           cms.InputTag("genParticles"          , "", "SIM" ),
+   generalTrack =           cms.InputTag("generalTracks"         , "", "RECO"),
+   offlinePrimaryVertices = cms.InputTag("offlinePrimaryVertices", "", "RECO")
 
    #CastorTowerColl = cms.InputTag('CastorTowerReco', '','RECO'),
    #CastorDigiColl = cms.InputTag('castorDigis', '','RECO'),

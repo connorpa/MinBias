@@ -34,6 +34,7 @@ extern void G__set_cpp_environmenteventdict();
 #include "./MyEvtId.h"
 #include "./MyPart.h"
 #include "./MyGenPart.h"
+#include "./MyTrack.h"
 #include "./MyVertex.h"
 #include "./MySimVertex.h"
 #include "./MyBeamSpot.h"
@@ -75,19 +76,25 @@ extern G__linked_taginfo G__eventdictLN_TMatrixTFlatlEfloatgR;
 extern G__linked_taginfo G__eventdictLN_TMatrixTSublEfloatgR;
 extern G__linked_taginfo G__eventdictLN_TMatrixTSparseRowlEfloatgR;
 extern G__linked_taginfo G__eventdictLN_TMatrixTSparseDiaglEfloatgR;
+extern G__linked_taginfo G__eventdictLN_TVector3;
 extern G__linked_taginfo G__eventdictLN_TLorentzVector;
 extern G__linked_taginfo G__eventdictLN_MyPart;
 extern G__linked_taginfo G__eventdictLN_MyGenPart;
+extern G__linked_taginfo G__eventdictLN_MyTrack;
 extern G__linked_taginfo G__eventdictLN_MyVertex;
 extern G__linked_taginfo G__eventdictLN_MySimVertex;
 extern G__linked_taginfo G__eventdictLN_MyBeamSpot;
 extern G__linked_taginfo G__eventdictLN_vectorlEMyGenPartcOallocatorlEMyGenPartgRsPgR;
 extern G__linked_taginfo G__eventdictLN_vectorlEMyGenPartcOallocatorlEMyGenPartgRsPgRcLcLiterator;
 extern G__linked_taginfo G__eventdictLN_reverse_iteratorlEvectorlEMyGenPartcOallocatorlEMyGenPartgRsPgRcLcLiteratorgR;
+extern G__linked_taginfo G__eventdictLN_vectorlEMyTrackcOallocatorlEMyTrackgRsPgR;
+extern G__linked_taginfo G__eventdictLN_vectorlEMyTrackcOallocatorlEMyTrackgRsPgRcLcLiterator;
+extern G__linked_taginfo G__eventdictLN_reverse_iteratorlEvectorlEMyTrackcOallocatorlEMyTrackgRsPgRcLcLiteratorgR;
 extern G__linked_taginfo G__eventdictLN_vectorlEMyVertexcOallocatorlEMyVertexgRsPgR;
 extern G__linked_taginfo G__eventdictLN_vectorlEMyVertexcOallocatorlEMyVertexgRsPgRcLcLiterator;
 extern G__linked_taginfo G__eventdictLN_reverse_iteratorlEvectorlEMyVertexcOallocatorlEMyVertexgRsPgRcLcLiteratorgR;
 
 /* STUB derived class for protected member access */
 typedef vector<MyGenPart,allocator<MyGenPart> > G__vectorlEMyGenPartcOallocatorlEMyGenPartgRsPgR;
+typedef vector<MyTrack,allocator<MyTrack> > G__vectorlEMyTrackcOallocatorlEMyTrackgRsPgR;
 typedef vector<MyVertex,allocator<MyVertex> > G__vectorlEMyVertexcOallocatorlEMyVertexgRsPgR;

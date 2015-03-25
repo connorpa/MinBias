@@ -19,17 +19,18 @@
 
 bool RecoVtxDebug = false;
 
-void TrackAnalysisTree::GetRecoVertex(const edm::Event& iEvent, const char VertexCollName[60], vector<MyVertex>& VertexVector) {
+//void TrackAnalysisTree::GetRecoVertex(const edm::Event& iEvent, const char VertexCollName[60], vector<MyVertex>& primaryVertex) {
+void TrackAnalysisTree::GetRecoVertex(const edm::Event& iEvent) {
 
    using namespace std;
    using namespace edm;
    using namespace reco;
 
-   VertexVector.clear();
+   primaryVertex.clear();
    MyVertex myvertex;
 
-   Handle<reco::VertexCollection> vtxcoll;
-   iEvent.getByLabel(VertexCollName,vtxcoll);
+   Handle<VertexCollection> vtxcoll;
+   iEvent.getByLabel(VertexColl_,vtxcoll);
 
    if (RecoVtxDebug) cout<<"name of the requested vertex collection: "<<VertexCollName<<endl;
 
@@ -62,7 +63,7 @@ void TrackAnalysisTree::GetRecoVertex(const edm::Event& iEvent, const char Verte
 
       myvertex.ntracks = pv->tracksSize();
 
-      VertexVector.push_back(myvertex);
+      primaryVertex.push_back(myvertex);
 
       if (RecoVtxDebug) myvertex.Print();
    }   

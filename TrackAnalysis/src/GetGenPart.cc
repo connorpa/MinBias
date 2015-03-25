@@ -25,7 +25,7 @@
 
 bool GenPartDebug = false;
 
-void TrackAnalysisTree::GetGenPart(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void TrackAnalysisTree::GetGenPart(const edm::Event& iEvent)
 {
   using namespace std;
   using namespace edm;
@@ -33,10 +33,6 @@ void TrackAnalysisTree::GetGenPart(const edm::Event& iEvent, const edm::EventSet
 
   //-- Clear GenPart List
   GenPart.clear();
-
-  //-- Handle to access PDG data from iSetup
-  //ESHandle <HepPDT::ParticleDataTable> pdt;
-  //iSetup.getData(pdt);
 
    //-- Handle to access GenParticleCollection
    Handle<GenParticleCollection> genParticles;

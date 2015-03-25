@@ -15,6 +15,8 @@
 #pragma link C++ class vector<MyGenPart>+;
 //#pragma link C++ class MyGenJet+;
 //#pragma link C++ class vector<MyGenJet>+;
+#pragma link C++ class MyTrack+;
+#pragma link C++ class vector<MyTrack>+;
 
 #pragma link C++ class MyBeamSpot+;
 

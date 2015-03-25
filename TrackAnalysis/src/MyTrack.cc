@@ -1,31 +1,29 @@
-#include "./MyPart.h"
+#include "./MyTrack.h"
 #include <iostream>
 using namespace std;
 
-ClassImp(MyPart)
+ClassImp(MyTrack)
 
-MyPart::MyPart(){
+MyTrack::MyTrack(){
   this->Reset();
 }
 
-MyPart::~MyPart(){}
+MyTrack::~MyTrack(){}
 
-void MyPart::Reset(){
-  this->SetPtEtaPhiM(0,0,0,0);
+void MyTrack::Reset(){
+  this->SetPtEtaPhi(0,0,0);
   charge = 0;
 }
 
-void MyPart::Print(){
+void MyTrack::Print(){
                     cout << "px     : " << this->Px()   << endl;
                     cout << "py     : " << this->Py()   << endl;
                     cout << "pz     : " << this->Pz()   << endl;
-                    cout << "E      : " << this->E()    << endl;
-                    cout << "Et     : " << this->Et()   << endl;
                     cout << "pt     : " << this->Pt()   << endl;
   if(this->Pt()>0)  cout << "eta    : " << this->Eta()  << endl;
                     cout << "phi    : " << this->Phi()  << endl;
-                    cout << "mass   : " << this->M()    << endl;
                     cout << "charge : " << this->charge << endl;
 }
+
 
 

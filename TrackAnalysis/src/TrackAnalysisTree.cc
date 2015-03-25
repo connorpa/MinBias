@@ -27,7 +27,9 @@ TrackAnalysisTree::TrackAnalysisTree(const edm::ParameterSet& iConfig) {
   //StoreCastorJet = iConfig.getParameter<bool>("StoreCastorJet");
 
   //-- define Collection
-  genPartColl_ = iConfig.getParameter<edm::InputTag>("genPartColl");
+  genPartColl_       = iConfig.getParameter<edm::InputTag>("genParticles");
+  vertexColl_        = iConfig.getParameter<edm::InputTag>("offlinePrimaryVertices");
+  generalTracksColl_ = iConfig.getParameter<edm::InputTag>("generalTracks");
   //hepMCColl_ = iConfig.getParameter<edm::InputTag>("hepMCColl");
 
   //L1GT_TrigMenuLite_Prov_ = iConfig.getParameter<bool>("L1GT_TrigMenuLite_Prov");
@@ -94,21 +96,24 @@ TrackAnalysisTree::~TrackAnalysisTree() {
 void TrackAnalysisTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
    
   using namespace edm;
+
+  GetEvtId(iEvent);
+  if(StoreGenPart)  GetGenPart (iEvent); // includes simVertex getter
+  GetBeamSpot  (iEvent);
+  GetRecoVertex(iEvent);
+  GetRecoTrack (iEvent);
   
   //-- General Information
-  GetEvtId(iEvent);
   //GetL1Trig(iEvent,iSetup);
   //GetHLTrig(iEvent,iSetup);
   
   //-- MC Information
   //if(StoreGenKine) GetGenKin(iEvent);
-  if(StoreGenPart) GetGenPart(iEvent,iSetup);
   //if(StoreGenJet) GetGenJet(iEvent,GenJetColl_,GenJet);
   //if(StoreGenJet) GetGenJet(iEvent,ChargedGenJetColl_,ChargedGenJet);
 
-  //-- Reco Vertex Information
-  GetBeamSpot(iEvent);
-  GetRecoVertex(iEvent,"offlinePrimaryVertices",primaryVertex);
+  //-- Reco Vertex and Track Information
+  //GetRecoVertex(iEvent,"offlinePrimaryVertices",primaryVertex);
 
   //-- Castor Information
   //if(StoreCastorDigi) GetCastorDigi(iEvent,iSetup,castorDigi);
@@ -145,8 +150,12 @@ void TrackAnalysisTree::beginJob() {
 
   //-- MC Information
   //if(StoreGenKine) tree->Branch("GenKin",&GenKin);
-  if(StoreGenPart) tree->Branch("GenPart",&GenPart);
-  if(StoreGenPart) tree->Branch("simVertex",&simVertex);
+  if(StoreGenPart)
+  {
+      tree->Branch("GenPart"  ,&GenPart  );
+      tree->Branch("simVertex",&simVertex);
+  }
+  tree->Branch("RecoTrack", &RecoTrack);
   //if(StoreGenJet) tree->Branch("GenJet",&GenJet);
   //if(StoreGenJet) tree->Branch("ChargedGenJet",&ChargedGenJet);
 

@@ -47,6 +47,8 @@ using namespace std;
 #include "./MyGenPart.h"
 //#include "./MyGenJet.h"
 
+#include "./MyTrack.h"
+
 //-- vertex
 #include "./MyBeamSpot.h"
 #include "./MyVertex.h"
@@ -95,11 +97,13 @@ class TrackAnalysisTree : public edm::EDAnalyzer {
         bool hasFired(const std::string& triggerName, const edm::TriggerNames& triggerNames, const edm::TriggerResults& triggerResults) const;
 
         //virtual void GetGenKin(const edm::Event&);
-        virtual void GetGenPart(const edm::Event&, const edm::EventSetup&);      
+        virtual void GetGenPart(const edm::Event&);      
         //virtual void FillGenPart(const reco::GenParticle&, MyGenPart&);
         //virtual void GetGenJet(const edm::Event&, const edm::InputTag&, vector<MyGenJet>&);
 
-        virtual void GetRecoVertex(const edm::Event&, const char[60], vector<MyVertex>&); 
+        //virtual void GetRecoVertex(const edm::Event&, const char[60], vector<MyVertex>&); 
+        virtual void GetRecoVertex(const edm::Event&); 
+        virtual void GetRecoTrack (const edm::Event&); 
         virtual void GetBeamSpot(const edm::Event&);
 
         //virtual void GetCastorDigi(const edm::Event&, const edm::EventSetup&, vector<MyCastorDigi>&);
@@ -134,7 +138,9 @@ class TrackAnalysisTree : public edm::EDAnalyzer {
         //-- Collection to retrieve
 
         //edm::InputTag hepMCColl_;
-        edm::InputTag genPartColl_;
+        edm::InputTag genPartColl_,
+                      vertexColl_,
+                      generalTracks;
 
         //bool L1GT_TrigMenuLite_Prov_;
         //edm::InputTag L1GT_TrigMenuLite_;
@@ -196,8 +202,9 @@ class TrackAnalysisTree : public edm::EDAnalyzer {
 
         //-- MC Information
         //MyGenKin GenKin;
-        vector<MyGenPart> GenPart;
         MySimVertex simVertex;
+        vector<MyGenPart> GenPart;
+        vector<MyPart>    RecoTrack;
         //vector<MyGenJet> GenJet;
         //vector<MyGenJet> ChargedGenJet;
 
