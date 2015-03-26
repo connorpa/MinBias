@@ -1,4 +1,3 @@
-
 #include "./MyGenPart.h"
 #include <iostream>
 
@@ -12,8 +11,7 @@ MyGenPart::~MyGenPart() { }
 
 void MyGenPart::Print() {
 
-  this->MyPart::Print();
-  cout<<"pdgId: "<<this->pdgId<<endl;
-  cout<<"status: "<<this->status<<endl;
-  cout<<"name: "<<this->name<<endl;
+    this->MyPart::Print();
+    cout<<"pdgId: "<<this->pdgId<<endl;
+    cout<<"status: "<<this->status<<endl;
 }

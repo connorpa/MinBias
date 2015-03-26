@@ -92,6 +92,49 @@ TrackAnalysisTree::~TrackAnalysisTree() {
 
 //-- member functions
 
+//-- method called once each job just before starting the event loop 
+void TrackAnalysisTree::beginJob() {
+
+  tree = fs->make<TTree>("TrackAnalysisTree","TrackAnalysisTree");
+
+  //-- General Information
+  tree->Branch("EvtId",&EvtId);
+  //tree->Branch("L1Trig",&L1Trig);
+  //tree->Branch("HLTrig",&HLTrig);
+
+  //-- MC Information
+  //if(StoreGenKine) tree->Branch("GenKin",&GenKin);
+  if(StoreGenPart)
+  {
+      tree->Branch("GenPart"  ,&GenPart  ); // vector<MyGenPart>
+      tree->Branch("simVertex",&simVertex); // MySimVector
+  }
+  tree->Branch("RecoTrack", &RecoTrack);    // vector<MyTrack>
+  //if(StoreGenJet) tree->Branch("GenJet",&GenJet);
+  //if(StoreGenJet) tree->Branch("ChargedGenJet",&ChargedGenJet);
+
+  //-- Reco Vertex Information
+  tree->Branch("beamSpot",&beamSpot);       // MyBeamSpot
+  tree->Branch("primaryVertex",&primaryVertex);  // vector<MyVertex>
+
+  //-- Castor Information
+  //if(StoreCastorDigi) tree->Branch("castorDigi",&castorDigi);
+  //if(StoreCastorJet) tree->Branch("castorRecHit",&castorRecHit);
+  //tree->Branch("castorTower",&castorTower);
+  //tree->Branch("castorJet",&castorJet);
+ 
+  ////-- Central Jet Information 
+  //tree->Branch("pfJet",&pfJet);
+  //tree->Branch("caloJet",&caloJet);
+  //tree->Branch("trackJet",&trackJet);
+
+  //tree->Branch("pfDiJet",&pfDiJet);
+  //tree->Branch("caloDiJet",&caloDiJet);
+
+  //-- CaloTower Information
+  //tree->Branch("caloTower",&caloTower);
+}
+
 //-- method called to for each event
 void TrackAnalysisTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
    
@@ -136,49 +179,6 @@ void TrackAnalysisTree::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //-- Filling of the tree
   //-- Add here some event selection if needed 
   tree->Fill();
-}
-
-//-- method called once each job just before starting the event loop 
-void TrackAnalysisTree::beginJob() {
-
-  tree = fs->make<TTree>("TrackAnalysisTree","TrackAnalysisTree");
-
-  //-- General Information
-  tree->Branch("EvtId",&EvtId);
-  //tree->Branch("L1Trig",&L1Trig);
-  //tree->Branch("HLTrig",&HLTrig);
-
-  //-- MC Information
-  //if(StoreGenKine) tree->Branch("GenKin",&GenKin);
-  if(StoreGenPart)
-  {
-      tree->Branch("GenPart"  ,&GenPart  );
-      tree->Branch("simVertex",&simVertex);
-  }
-  tree->Branch("RecoTrack", &RecoTrack);
-  //if(StoreGenJet) tree->Branch("GenJet",&GenJet);
-  //if(StoreGenJet) tree->Branch("ChargedGenJet",&ChargedGenJet);
-
-  //-- Reco Vertex Information
-  tree->Branch("beamSpot",&beamSpot);
-  tree->Branch("primaryVertex",&primaryVertex);  
-
-  //-- Castor Information
-  //if(StoreCastorDigi) tree->Branch("castorDigi",&castorDigi);
-  //if(StoreCastorJet) tree->Branch("castorRecHit",&castorRecHit);
-  //tree->Branch("castorTower",&castorTower);
-  //tree->Branch("castorJet",&castorJet);
- 
-  ////-- Central Jet Information 
-  //tree->Branch("pfJet",&pfJet);
-  //tree->Branch("caloJet",&caloJet);
-  //tree->Branch("trackJet",&trackJet);
-
-  //tree->Branch("pfDiJet",&pfDiJet);
-  //tree->Branch("caloDiJet",&caloDiJet);
-
-  //-- CaloTower Information
-  //tree->Branch("caloTower",&caloTower);
 }
 
 

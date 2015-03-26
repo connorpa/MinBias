@@ -1,4 +1,3 @@
-
 #include "./MyBeamSpot.h"
 //#include "./MyCastorDigi.h"
 //#include "./MyCastorJet.h"
@@ -19,9 +18,6 @@
 #include "./MyPart.h"
 #include "./MySimVertex.h"
 #include "./MyVertex.h"
-
-
-#ifdef __CINT__
 
 #include "../interface/LinkDef.h"
 
@@ -67,6 +63,4 @@
 //#pragma link C++ class vector<MyTrackJet>+;
 //
 //#pragma link C++ class MyDiJet+;
-
-#endif
 

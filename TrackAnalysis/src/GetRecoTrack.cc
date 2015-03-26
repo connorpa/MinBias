@@ -45,9 +45,11 @@ void TrackAnalysisTree::GetRecoTrack(const edm::Event& iEvent)
     //-- Loop on generated particle and store if status = 1
     if(RecoTrackDebug) cout << "number of reco tracks: "<<trackcollection->size()<<endl;
 
-    for(TrackCollection::const_iterator p = trackcollection->begin(); p != trackcollection->end(); ++ p) {
-
-        MyTrack track(p->px(),p->py(),p->pz());
+    for(TrackCollection::const_iterator p = trackcollection->begin(); p != trackcollection->end(); ++ p)
+    {
+        //MyTrack track(p->px(),p->py(),p->pz());
+        MyTrack track;
+        track.SetXYZ(p->px(),p->py(),p->pz());
         track.charge  = p->charge();
         RecoTrack.push_back(track);
         if(RecoTrackDebug)   track.Print();

@@ -57,7 +57,6 @@ void TrackAnalysisTree::GetGenPart(const edm::Event& iEvent)
    
    for(GenParticleCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) {
      
-     int st = p->status();
      MyGenPart genpart;
 
      //-- filling inherited from MyPart
@@ -70,8 +69,8 @@ void TrackAnalysisTree::GetGenPart(const edm::Event& iEvent)
      //genpart.name    = (pdt->particle(p->pdgId()))->name();
 
      //-- store if status = 1
-     if(st==1) GenPart.push_back(genpart);
-     if(st==1 && GenPartDebug) genpart.Print();
+     if(genpart.status==1) GenPart.push_back(genpart);
+     if(genpart.status==1 && GenPartDebug) genpart.Print();
    }
 }
 

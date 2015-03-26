@@ -5,28 +5,28 @@
 
 class MyVertex : public TObject {
 
-  public :
-    MyVertex();
-    virtual ~MyVertex();
+    public :
+        MyVertex();
+        virtual ~MyVertex();
 
-    void Print();
+        void Print();
 
-    Double_t x,y,z,rho;
-    Double_t ex,ey,ez,erho;    
+        Double_t x,y,z,rho;
+        Double_t ex,ey,ez,erho;    
 
-    Bool_t validity;  
-    Bool_t fake;
+        Bool_t validity;  
+        Bool_t fake;
 
-    Double_t chi2n;
-    Double_t ndof; 
+        Double_t chi2n;
+        Double_t ndof; 
 
-    Bool_t isGoodVertex;
-   
-    Int_t  ntracks;  
+        Bool_t isGoodVertex;
 
-  private:
+        Int_t  ntracks;  
 
-  ClassDef (MyVertex,1)
+    private:
+
+        ClassDef (MyVertex,1)
 };
 
 #endif

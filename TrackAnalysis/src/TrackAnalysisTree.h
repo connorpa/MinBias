@@ -94,7 +94,7 @@ class TrackAnalysisTree : public edm::EDAnalyzer {
         virtual void GetEvtId(const edm::Event&);
         ///virtual void GetL1Trig(const edm::Event&, const edm::EventSetup&);
         ///virtual void GetHLTrig(const edm::Event&, const edm::EventSetup&);
-        bool hasFired(const std::string& triggerName, const edm::TriggerNames& triggerNames, const edm::TriggerResults& triggerResults) const;
+        //bool hasFired(const std::string& triggerName, const edm::TriggerNames& triggerNames, const edm::TriggerResults& triggerResults) const;
 
         //virtual void GetGenKin(const edm::Event&);
         virtual void GetGenPart(const edm::Event&);      
