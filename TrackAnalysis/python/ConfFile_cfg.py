@@ -36,7 +36,7 @@ process.oneGoodVertexFilter = cms.EDFilter("VertexSelector",
 
 # ouput
 process.TFileService = cms.Service("TFileService",
-        fileName = cms.string("/afs/desy.de/user/c/connorpa/CMSSW/CMSSW_7_4_0_pre8/src/MinBias/TrackAnalysis/data/trackanalysis_output.root")
+        fileName = cms.string("/afs/desy.de/user/c/connorpa/CMSSW/CMSSW_7_4_0/src/MinBias/TrackAnalysis/data/trackanalysis_output.root")
         #closeFileFast = cms.untracked.bool(True)
         )
 

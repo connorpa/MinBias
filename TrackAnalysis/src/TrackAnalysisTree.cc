@@ -85,7 +85,7 @@ TrackAnalysisTree::TrackAnalysisTree(const edm::ParameterSet& iConfig) {
 
 
 TrackAnalysisTree::~TrackAnalysisTree() {
-   //-- do anything here that needs to be done at destruction time
+   //-- do anything here that needs to be done at destruction time  // nothing TODO, apparently
    //-- e.g. close files, deallocate resources etc.
 }
 
@@ -140,9 +140,9 @@ void TrackAnalysisTree::analyze(const edm::Event& iEvent, const edm::EventSetup&
    
   using namespace edm;
 
-  GetEvtId(iEvent);
   if(StoreGenPart)  GetGenPart (iEvent); // includes simVertex getter
   GetBeamSpot  (iEvent);
+  GetEvtId(iEvent);
   GetRecoVertex(iEvent);
   GetRecoTrack (iEvent);
   
