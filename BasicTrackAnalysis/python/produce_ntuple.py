@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TrackTree")
+process = cms.Process("TreeProducer")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -17,7 +17,7 @@ process.TFileService = cms.Service("TFileService",
         fileName = cms.string("/afs/desy.de/user/c/connorpa/CMSSW/CMSSW_7_4_0/src/MinBias/BasicTrackAnalysis/data/trackanalysis_output.root")
     )
 
-process.minbiasdata = cms.EDAnalyzer('BasicTrackAnalysis'
+process.minbiasdata = cms.EDAnalyzer('TreeProducer'
    #, storeGenPart  = cms.bool(True),
    #, genParticles           = cms.InputTag("genParticles"          , "", "SIM" )
     , generalTracks          = cms.InputTag("generalTracks"         , "", "RECO")
