@@ -1,3 +1,6 @@
+#include <vector>
+#include <Rtypes.h>
+
 // BEAM SPOT
 struct MyBeamSpot
 {
@@ -19,14 +22,14 @@ struct MyBeamSpot
              BeamWidthYError;
 };
 
-#include "DataFormats/Provenance/interface/Timestamp.h"
 // EVENT ID
 struct MyEvtId
 {
     UInt_t      Run,
                 Evt,
                 LumiBlock;
-    edm::TimeValue_t Time;
+    ULong64_t    Time;
+    //edm::TimeValue_t    Time;
     Bool_t      IsData;
     UInt_t      ExpType;
     Int_t       Bunch,
@@ -36,43 +39,73 @@ struct MyEvtId
                 IstLumiPerBX;   
 };
 
-struct MyRecoVertices
+struct MyGenVertices
 {
-    vector<Double_t> * x     ,
-                     * y     ,
-                     * z     ,
-                     * xError,
-                     * yError,
-                     * zError,
-                     * chi2  ,
-                     * ndof  ;
-    vector<Bool_t  > * isFake ,
-                     * isValid;
-
-    MyRecoVertices ()
-        :   x      (0x0)
-        ,   y      (0x0)
-        ,   z      (0x0)
-        ,   xError (0x0)
-        ,   yError (0x0)
-        ,   zError (0x0)
-        ,   chi2   (0x0)
-        ,   ndof   (0x0)
-        ,   isFake (0x0)
-        ,   isValid(0x0)
+    std::vector<Double_t> * x,
+                          * y,
+                          * z;
+    MyGenVertices ()
+        :   x(0x0)
+        ,   y(0x0)
+        ,   z(0x0)
     {}
 };
 
-struct MyRecoTracks
+struct MyRecoVertices : public MyGenVertices
 {
-    vector<Double_t> * px,
-                     * py,
-                     * pz;
-    vector<Int_t> * charge;
-    MyRecoTracks ()
-    :   px    (0x0)
-    ,   py    (0x0)
-    ,   pz    (0x0)
+    std::vector<Double_t> * xError  ,
+                          * yError  ,
+                          * zError  ,
+                          * chi2    ,
+                          * ndof    ;
+    std::vector<Bool_t  > * isFake ,
+                          * isValid;
+
+    MyRecoVertices ()
+        :   xError  (0x0)
+        ,   yError  (0x0)
+        ,   zError  (0x0)
+        ,   chi2    (0x0)
+        ,   ndof    (0x0)
+        ,   isFake  (0x0)
+        ,   isValid (0x0)
+    {
+        //MyGenVertices();
+    }
+};
+
+struct MyGenTracks
+{
+    std::vector<Double_t> * pt ,
+                          * eta,
+                          * phi;
+    std::vector<Int_t> * charge;
+    MyGenTracks ()
+    :   pt    (0x0)
+    ,   eta   (0x0)
+    ,   phi   (0x0)
     ,   charge(0x0)
     {}
+};
+
+struct MyRecoTracks : public MyGenTracks
+{
+    std::vector<Double_t> * ptError ,
+                          * etaError,
+                          * phiError,
+                          * dxy     ,
+                          * dxyError,
+                          * dz      ,
+                          * dzError ;
+    MyRecoTracks ()
+    :   ptError (0x0)
+    ,   etaError(0x0)
+    ,   phiError(0x0)
+    ,   dxy     (0x0)
+    ,   dxyError(0x0)
+    ,   dz      (0x0)
+    ,   dzError (0x0)
+    {
+        //MyGenTracks();
+    }
 };

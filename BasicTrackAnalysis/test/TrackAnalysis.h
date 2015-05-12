@@ -9,6 +9,8 @@
 #define TrackAnalysis_h
 
 #include <iostream>
+#include <vector>
+#include <cstdlib>
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -25,35 +27,28 @@ class TrackAnalysis
     TTree          *fChain;   //!pointer to the analyzed TTree or TChain
     Int_t           fCurrent; //!current Tree number in a TChain
     const TString path_to_tree;
+    const bool kContainsGenLevel;
 
     // Fixed size dimensions of array or collections stored in the TTree if any.
 
     // Declaration of leaf types
-    MyBeamSpot BS;
-    MyEvtId EI;
-    MyRecoVertices RV;
-    MyRecoTracks RT;
-
-    //vector<Double_t> * RecoVertices_x       ;
-    //vector<Double_t> * RecoVertices_y       ;
-    //vector<Double_t> * RecoVertices_z       ;
-    //vector<Double_t> * RecoVertices_xError  ;
-    //vector<Double_t> * RecoVertices_yError  ;
-    //vector<Double_t> * RecoVertices_zError  ;
-    //vector<Double_t> * RecoVertices_chi2    ;
-    //vector<Double_t> * RecoVertices_ndof    ;
-    //vector<Bool_t  > * RecoVertices_isFake  ;
-    //vector<Bool_t  > * RecoVertices_isValid ;
-
-    //vector<Double_t> * RecoTracks_px        ;
-    //vector<Double_t> * RecoTracks_py        ;
-    //vector<Double_t> * RecoTracks_pz        ;
-    //vector<Int_t   > * RecoTracks_charge    ;
+    MyBeamSpot      BS;
+    MyEvtId         EI;
+    MyGenVertices   GV;
+    MyGenTracks     GT;
+    MyRecoVertices  RV;
+    MyRecoTracks    RT;
 
     // List of branches
     TBranch * b_BeamSpot;   //!
     TBranch * b_EvtId;   //!
-    TBranch * b_RecoVertices_size;   //!
+    TBranch * b_GenVertices_x;   //!
+    TBranch * b_GenVertices_y;   //!
+    TBranch * b_GenVertices_z;   //!
+    TBranch * b_GenTracks_pt;   //!
+    TBranch * b_GenTracks_eta;   //!
+    TBranch * b_GenTracks_phi;   //!
+    TBranch * b_GenTracks_charge;   //!
     TBranch * b_RecoVertices_x;   //!
     TBranch * b_RecoVertices_y;   //!
     TBranch * b_RecoVertices_z;   //!
@@ -64,11 +59,17 @@ class TrackAnalysis
     TBranch * b_RecoVertices_ndof;   //!
     TBranch * b_RecoVertices_isFake;   //!
     TBranch * b_RecoVertices_isValid;   //!
-    TBranch * b_RecoTracks_size;   //!
-    TBranch * b_RecoTracks_px;   //!
-    TBranch * b_RecoTracks_py;   //!
-    TBranch * b_RecoTracks_pz;   //!
+    TBranch * b_RecoTracks_pt;   //!
+    TBranch * b_RecoTracks_eta;   //!
+    TBranch * b_RecoTracks_phi;   //!
+    TBranch * b_RecoTracks_ptError;   //!
+    TBranch * b_RecoTracks_etaError;   //!
+    TBranch * b_RecoTracks_phiError;   //!
     TBranch * b_RecoTracks_charge;   //!
+    TBranch * b_RecoTracks_dxy;      //!
+    TBranch * b_RecoTracks_dxyError;    //!
+    TBranch * b_RecoTracks_dz;       //!
+    TBranch * b_RecoTracks_dzError;    //!
 
 public:
     TrackAnalysis(TTree *tree = 0x0);
@@ -88,16 +89,16 @@ public:
 TrackAnalysis::TrackAnalysis(TTree *tree) 
     :   fChain(0x0) 
     ,   path_to_tree("/afs/desy.de/user/c/connorpa/CMSSW/CMSSW_7_4_0/src/MinBias/BasicTrackAnalysis/data/trackanalysis_output.root")
+    ,   kContainsGenLevel(true)
 {
     // if parameter tree is not specified (or zero), connect the file
     // used to generate this class and read the Tree.
-    if (tree == 0) {
+    if (tree == 0x0)
+    {
         TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(path_to_tree);
-        if (!f || !f->IsOpen()) {
+        if (!f || !f->IsOpen())
             f = new TFile(path_to_tree);
-        }
-        TDirectory * dir = (TDirectory*)f->Get(path_to_tree + ":/minbiasdata");
-        dir->GetObject("MinBiasData",tree);
+        tree = (TTree *) ((TDirectory*) f->Get(path_to_tree + ":/minbiasdata"))->Get("MinBiasData");
 
     }
     Init(tree);
@@ -148,6 +149,16 @@ void TrackAnalysis::Init(TTree *tree)
     fChain->SetBranchAddress("BeamSpot", &BS, &b_BeamSpot);
     fChain->SetBranchAddress("EvtId", &EI, &b_EvtId);
     // less nice
+    if (kContainsGenLevel)
+    {
+        fChain->SetBranchAddress("GenVertices.x", &GV.x, &b_GenVertices_x);
+        fChain->SetBranchAddress("GenVertices.y", &GV.y, &b_GenVertices_y);
+        fChain->SetBranchAddress("GenVertices.z", &GV.z, &b_GenVertices_z);
+        fChain->SetBranchAddress("GenTracks.pt"    , &GT.pt    , &b_GenTracks_pt    );
+        fChain->SetBranchAddress("GenTracks.eta"   , &GT.eta   , &b_GenTracks_eta   );
+        fChain->SetBranchAddress("GenTracks.phi"   , &GT.phi   , &b_GenTracks_phi   );
+        fChain->SetBranchAddress("GenTracks.charge", &GT.charge, &b_GenTracks_charge);
+    }
     fChain->SetBranchAddress("RecoVertices.x"      , &RV.x      , &b_RecoVertices_x      );
     fChain->SetBranchAddress("RecoVertices.y"      , &RV.y      , &b_RecoVertices_y      );
     fChain->SetBranchAddress("RecoVertices.z"      , &RV.z      , &b_RecoVertices_z      );
@@ -158,10 +169,17 @@ void TrackAnalysis::Init(TTree *tree)
     fChain->SetBranchAddress("RecoVertices.ndof"   , &RV.ndof   , &b_RecoVertices_ndof   );
     fChain->SetBranchAddress("RecoVertices.isFake" , &RV.isFake , &b_RecoVertices_isFake );
     fChain->SetBranchAddress("RecoVertices.isValid", &RV.isValid, &b_RecoVertices_isValid);
-    fChain->SetBranchAddress("RecoTracks.px"    , &RT.px    , &b_RecoTracks_px    );
-    fChain->SetBranchAddress("RecoTracks.py"    , &RT.py    , &b_RecoTracks_py    );
-    fChain->SetBranchAddress("RecoTracks.pz"    , &RT.pz    , &b_RecoTracks_pz    );
-    fChain->SetBranchAddress("RecoTracks.charge", &RT.charge, &b_RecoTracks_charge);
+    fChain->SetBranchAddress("RecoTracks.pt"      , &RT.pt      , &b_RecoTracks_pt      );
+    fChain->SetBranchAddress("RecoTracks.eta"     , &RT.eta     , &b_RecoTracks_eta     );
+    fChain->SetBranchAddress("RecoTracks.phi"     , &RT.phi     , &b_RecoTracks_phi     );
+    fChain->SetBranchAddress("RecoTracks.ptError" , &RT.ptError , &b_RecoTracks_ptError );
+    fChain->SetBranchAddress("RecoTracks.etaError", &RT.etaError, &b_RecoTracks_etaError);
+    fChain->SetBranchAddress("RecoTracks.phiError", &RT.phiError, &b_RecoTracks_phiError);
+    fChain->SetBranchAddress("RecoTracks.charge"  , &RT.charge  , &b_RecoTracks_charge  );
+    fChain->SetBranchAddress("RecoTracks.dxy"     , &RT.dxy     , &b_RecoTracks_dxy     ); 
+    fChain->SetBranchAddress("RecoTracks.dxyError", &RT.dxyError, &b_RecoTracks_dxyError);
+    fChain->SetBranchAddress("RecoTracks.dz"      , &RT.dz      , &b_RecoTracks_dz      );
+    fChain->SetBranchAddress("RecoTracks.dzError" , &RT.dzError , &b_RecoTracks_dzError );
     Notify();
 }
 

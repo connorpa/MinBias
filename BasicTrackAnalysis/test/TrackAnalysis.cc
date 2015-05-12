@@ -1,5 +1,6 @@
 #define TrackAnalysis_cxx
 #include "TrackAnalysis.h"
+#include <TApplication.h>
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -40,13 +41,41 @@ void TrackAnalysis::Loop()
         nb = fChain->GetEntry(jentry);   nbytes += nb;
         // if (Cut(ientry) < 0) continue;
 
+        // test BS and EI
         cout << __FILE__ << ":" << __func__ << ":" << __LINE__ << ":" << jentry << ":\tBS.position = (" << BS.positionX << "," << BS.positionY << "," << BS.positionZ << ")" << endl;
         cout << __FILE__ << ":" << __func__ << ":" << __LINE__ << ":" << jentry << ":\tEI.Run = " << EI.Run << endl;
+
+        // test GV
+        cout << __FILE__ << ":" << __func__ << ":" << __LINE__ << ":" << jentry << ":\tGV.x->size() = " << GV.x->size() << endl;
+        for (UInt_t ivertex = 0 ; ivertex < GV.x->size() ; ivertex++)
+            cout << __FILE__ << ":" << __func__ << ":" << __LINE__ << ":" << jentry << ":\tVertex(" << ivertex << ") = (" << GV.x->at(ivertex) << "," << GV.y->at(ivertex) << "," << GV.z->at(ivertex) << ")" << endl;
+
+        // test GT
+        cout << __FILE__ << ":" << __func__ << ":" << __LINE__ << ":" << jentry << ":\tGT.pt->size() = " << GT.pt->size() << endl;
+        for (UInt_t itrack = 0 ; itrack < GT.pt->size() ; itrack++)
+            cout << __FILE__ << ":" << __func__ << ":" << __LINE__ << ":" << jentry << ":\tTrack(" << itrack << ") = (" << GT.pt->at(itrack) << "," << GT.eta->at(itrack) << "," << GT.phi->at(itrack) << ")" << endl;
+
+        // test RV
         cout << __FILE__ << ":" << __func__ << ":" << __LINE__ << ":" << jentry << ":\tRV.x->size() = " << RV.x->size() << endl;
         for (UInt_t ivertex = 0 ; ivertex < RV.x->size() ; ivertex++)
             cout << __FILE__ << ":" << __func__ << ":" << __LINE__ << ":" << jentry << ":\tVertex(" << ivertex << ") = (" << RV.x->at(ivertex) << "," << RV.y->at(ivertex) << "," << RV.z->at(ivertex) << ")" << endl;
-        cout << __FILE__ << ":" << __func__ << ":" << __LINE__ << ":" << jentry << ":\tRT.px->size() = " << RT.px->size() << endl;
-        for (UInt_t itrack = 0 ; itrack < RT.px->size() ; itrack++)
-            cout << __FILE__ << ":" << __func__ << ":" << __LINE__ << ":" << jentry << ":\tTrack(" << itrack << ") = (" << RT.px->at(itrack) << "," << RT.py->at(itrack) << "," << RT.pz->at(itrack) << ")" << endl;
+
+        // test RT
+        cout << __FILE__ << ":" << __func__ << ":" << __LINE__ << ":" << jentry << ":\tRT.pt->size() = " << RT.pt->size() << endl;
+        for (UInt_t itrack = 0 ; itrack < RT.pt->size() ; itrack++)
+            cout << __FILE__ << ":" << __func__ << ":" << __LINE__ << ":" << jentry << ":\tTrack(" << itrack << ") = (" << RT.pt->at(itrack) << "," << RT.eta->at(itrack) << "," << RT.phi->at(itrack) << ")" << endl;
     }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+int main (int argc, char * argv[])
+{
+    TApplication * rootapp = new TApplication ("tapp", &argc, argv);
+    //if (rootapp->Argc() < 1)
+    //    return EXIT_FAILURE;
+    TrackAnalysis * ta = new TrackAnalysis ();
+    //cp->Show(2);
+    ta->Loop();//(rootapp->Argc() > 1 ? (Long64_t) atoi(rootapp->Argv(1)) : 0);
+    rootapp->Terminate();
+    return EXIT_SUCCESS;
 }

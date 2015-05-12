@@ -9,5 +9,7 @@
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/VertexReco"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="SimGeneral/HepPDTRecord"/>
 
 <flags EDM_PLUGIN="1"/>

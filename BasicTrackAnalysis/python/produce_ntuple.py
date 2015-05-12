@@ -18,8 +18,8 @@ process.TFileService = cms.Service("TFileService",
     )
 
 process.minbiasdata = cms.EDAnalyzer('TreeProducer'
-   #, storeGenPart  = cms.bool(True),
-   #, genParticles           = cms.InputTag("genParticles"          , "", "SIM" )
+    , storeGenPart           = cms.bool(True)
+    , genParticles           = cms.InputTag("genParticles"          , "", "SIM" )
     , generalTracks          = cms.InputTag("generalTracks"         , "", "RECO")
     , offlinePrimaryVertices = cms.InputTag("offlinePrimaryVertices", "", "RECO")
 )
