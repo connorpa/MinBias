@@ -39,8 +39,8 @@ class TrackAnalysis // TODO: handle the cases where only certain branches are pr
     MyGenTracks     GT;
     MyRecoVertices  RV;
     MyRecoTracks    RT;
-    MyHFCaloTower   CT;
-    MyHFRecHit      RH;
+    MyCaloTower     CT;
+    MyRecHit        RH_EE, RH_EB, RH_HBHE, RH_HO, RH_HF;
 
     // List of branches
     TBranch * b_BeamSpot;   //!
@@ -73,8 +73,16 @@ class TrackAnalysis // TODO: handle the cases where only certain branches are pr
     TBranch * b_RecoTracks_dxyError;    //!
     TBranch * b_RecoTracks_dz;       //!
     TBranch * b_RecoTracks_dzError;    //!
-    TBranch * b_HFRecHit_energy;   //!
+    TBranch * b_HFRecHitEE_energy;
+    TBranch * b_HFRecHitEB_energy;
+    TBranch * b_HFRecHitHBHE_energy;
+    TBranch * b_HFRecHitHO_energy;
+    TBranch * b_HFRecHitHF_energy;
     TBranch * b_HFCaloTower_energy;   //!
+    TBranch * b_HFCaloTower_energyInHE;   //!
+    TBranch * b_HFCaloTower_energyInHB;   //!
+    TBranch * b_HFCaloTower_energyInHO;   //!
+    TBranch * b_HFCaloTower_energyInHF;   //!
     TBranch * b_HFCaloTower_emEnergy;   //!
     TBranch * b_HFCaloTower_hadEnergy;   //!
     TBranch * b_HFCaloTower_eta;   //!
@@ -195,12 +203,20 @@ void TrackAnalysis::Init(TTree *tree)
     fChain->SetBranchAddress("RecoTracks.dxyError", &RT.dxyError, &b_RecoTracks_dxyError);
     fChain->SetBranchAddress("RecoTracks.dz"      , &RT.dz      , &b_RecoTracks_dz      );
     fChain->SetBranchAddress("RecoTracks.dzError" , &RT.dzError , &b_RecoTracks_dzError );
-    //fChain->SetBranchAddress("HFRecHit.energy", &RH.energy, &b_HFRecHit_energy);
-    //fChain->SetBranchAddress("HFCaloTower.energy"   , &CT.energy   , &b_HFCaloTower_energy   ); // TODO: automate the recognition of the branch present in the tree
-    //fChain->SetBranchAddress("HFCaloTower.emEnergy" , &CT.emEnergy , &b_HFCaloTower_emEnergy );
-    //fChain->SetBranchAddress("HFCaloTower.hadEnergy", &CT.hadEnergy, &b_HFCaloTower_hadEnergy);
-    //fChain->SetBranchAddress("HFCaloTower.eta"      , &CT.eta      , &b_HFCaloTower_eta      );
-    //fChain->SetBranchAddress("HFCaloTower.phi"      , &CT.phi      , &b_HFCaloTower_phi      );
+    fChain->SetBranchAddress("HFRecHitEE.energy"  , &RH_EE.energy  , &b_HFRecHitEE_energy);
+    fChain->SetBranchAddress("HFRecHitEB.energy"  , &RH_EB.energy  , &b_HFRecHitEB_energy);
+    fChain->SetBranchAddress("HFRecHitHBHE.energy", &RH_HBHE.energy, &b_HFRecHitHBHE_energy);
+    fChain->SetBranchAddress("HFRecHitHO.energy"  , &RH_HO.energy  , &b_HFRecHitHO_energy);
+    fChain->SetBranchAddress("HFRecHitHF.energy"  , &RH_HF.energy  , &b_HFRecHitHF_energy);
+    fChain->SetBranchAddress("HFCaloTower.energy"    , &CT.energy    , &b_HFCaloTower_energy    ); // TODO: automate the recognition of the branch present in the tree
+    fChain->SetBranchAddress("HFCaloTower.energyInHB", &CT.energyInHB, &b_HFCaloTower_energyInHB);
+    fChain->SetBranchAddress("HFCaloTower.energyInHE", &CT.energyInHE, &b_HFCaloTower_energyInHE);
+    fChain->SetBranchAddress("HFCaloTower.energyInHO", &CT.energyInHO, &b_HFCaloTower_energyInHO);
+    fChain->SetBranchAddress("HFCaloTower.energyInHF", &CT.energyInHF, &b_HFCaloTower_energyInHF);
+    fChain->SetBranchAddress("HFCaloTower.emEnergy"  , &CT.emEnergy  , &b_HFCaloTower_emEnergy  );
+    fChain->SetBranchAddress("HFCaloTower.hadEnergy" , &CT.hadEnergy , &b_HFCaloTower_hadEnergy );
+    fChain->SetBranchAddress("HFCaloTower.eta"       , &CT.eta       , &b_HFCaloTower_eta       );
+    fChain->SetBranchAddress("HFCaloTower.phi"       , &CT.phi       , &b_HFCaloTower_phi       );
 
     Notify();
 }
