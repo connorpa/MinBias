@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 #include <cstdlib>
 
 #include <TROOT.h>
@@ -22,7 +23,7 @@
 
 using namespace std;
 
-class TrackAnalysis
+class TrackAnalysis // TODO: handle the cases where only certain branches are present
 {
     TTree          *fChain;   //!pointer to the analyzed TTree or TChain
     Int_t           fCurrent; //!current Tree number in a TChain
@@ -38,6 +39,8 @@ class TrackAnalysis
     MyGenTracks     GT;
     MyRecoVertices  RV;
     MyRecoTracks    RT;
+    MyHFCaloTower   CT;
+    MyHFRecHit      RH;
 
     // List of branches
     TBranch * b_BeamSpot;   //!
@@ -70,15 +73,24 @@ class TrackAnalysis
     TBranch * b_RecoTracks_dxyError;    //!
     TBranch * b_RecoTracks_dz;       //!
     TBranch * b_RecoTracks_dzError;    //!
+    TBranch * b_HFRecHit_energy;   //!
+    TBranch * b_HFCaloTower_energy;   //!
+    TBranch * b_HFCaloTower_emEnergy;   //!
+    TBranch * b_HFCaloTower_hadEnergy;   //!
+    TBranch * b_HFCaloTower_eta;   //!
+    TBranch * b_HFCaloTower_phi;   //!
 
 public:
-    TrackAnalysis(TTree *tree = 0x0);
+    TrackAnalysis(TTree * tree,
+                  bool kGenLevel = true);
+    TrackAnalysis(TString treefilename,
+                  bool kGenLevel = true);
     virtual ~TrackAnalysis();
     virtual Int_t    Cut(Long64_t entry);
     virtual Int_t    GetEntry(Long64_t entry);
     virtual Long64_t LoadTree(Long64_t entry);
     virtual void     Init(TTree *tree);
-    virtual void     Loop();
+    virtual void     Loop(Long64_t maxentries = 0);
     virtual Bool_t   Notify();
     virtual void     Show(Long64_t entry = -1);
 };
@@ -86,22 +98,25 @@ public:
 #endif
 
 #ifdef TrackAnalysis_cxx
-TrackAnalysis::TrackAnalysis(TTree *tree) 
+TrackAnalysis::TrackAnalysis(TTree *tree,
+                             bool kGenLevel) 
     :   fChain(0x0) 
-    ,   path_to_tree("/afs/desy.de/user/c/connorpa/CMSSW/CMSSW_7_4_0/src/MinBias/BasicTrackAnalysis/data/trackanalysis_output.root")
-    ,   kContainsGenLevel(true)
+    ,   kContainsGenLevel(kGenLevel)
+{
+    Init(tree);
+}
+
+TrackAnalysis::TrackAnalysis(TString treefilename,
+                             bool kGenLevel) 
+    :   fChain(0x0) 
+    ,   path_to_tree (treefilename)
+    ,   kContainsGenLevel(kGenLevel)
 {
     // if parameter tree is not specified (or zero), connect the file
     // used to generate this class and read the Tree.
-    if (tree == 0x0)
-    {
-        TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(path_to_tree);
-        if (!f || !f->IsOpen())
-            f = new TFile(path_to_tree);
-        tree = (TTree *) ((TDirectory*) f->Get(path_to_tree + ":/minbiasdata"))->Get("MinBiasData");
-
-    }
-    Init(tree);
+    cout << "Opening " << path_to_tree << endl;
+    TFile * f = new TFile(path_to_tree);
+    Init((TTree *) ((TDirectory*) f->Get(path_to_tree + ":/minbiasdata"))->Get("MinBiasData"));
 }
 
 TrackAnalysis::~TrackAnalysis()
@@ -143,12 +158,12 @@ void TrackAnalysis::Init(TTree *tree)
     if (!tree) return;
     fChain = tree;
     fCurrent = -1;
-    fChain->SetMakeClass(1);
+    //fChain->SetMakeClass(1);
 
     // nice
     fChain->SetBranchAddress("BeamSpot", &BS, &b_BeamSpot);
     fChain->SetBranchAddress("EvtId", &EI, &b_EvtId);
-    // less nice
+    // less nice (TODO: replace multi-definition by object-like definition)
     if (kContainsGenLevel)
     {
         fChain->SetBranchAddress("GenVertices.x", &GV.x, &b_GenVertices_x);
@@ -180,6 +195,13 @@ void TrackAnalysis::Init(TTree *tree)
     fChain->SetBranchAddress("RecoTracks.dxyError", &RT.dxyError, &b_RecoTracks_dxyError);
     fChain->SetBranchAddress("RecoTracks.dz"      , &RT.dz      , &b_RecoTracks_dz      );
     fChain->SetBranchAddress("RecoTracks.dzError" , &RT.dzError , &b_RecoTracks_dzError );
+    //fChain->SetBranchAddress("HFRecHit.energy", &RH.energy, &b_HFRecHit_energy);
+    //fChain->SetBranchAddress("HFCaloTower.energy"   , &CT.energy   , &b_HFCaloTower_energy   ); // TODO: automate the recognition of the branch present in the tree
+    //fChain->SetBranchAddress("HFCaloTower.emEnergy" , &CT.emEnergy , &b_HFCaloTower_emEnergy );
+    //fChain->SetBranchAddress("HFCaloTower.hadEnergy", &CT.hadEnergy, &b_HFCaloTower_hadEnergy);
+    //fChain->SetBranchAddress("HFCaloTower.eta"      , &CT.eta      , &b_HFCaloTower_eta      );
+    //fChain->SetBranchAddress("HFCaloTower.phi"      , &CT.phi      , &b_HFCaloTower_phi      );
+
     Notify();
 }
 

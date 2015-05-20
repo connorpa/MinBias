@@ -62,29 +62,30 @@ struct MyRecoVertices : public MyGenVertices
                           * isValid;
 
     MyRecoVertices ()
-        :   xError  (0x0)
+        :   MyGenVertices()
+        ,   xError  (0x0)
         ,   yError  (0x0)
         ,   zError  (0x0)
         ,   chi2    (0x0)
         ,   ndof    (0x0)
         ,   isFake  (0x0)
         ,   isValid (0x0)
-    {
-        //MyGenVertices();
-    }
+    {}
 };
 
 struct MyGenTracks
 {
-    std::vector<Double_t> * pt ,
+    std::vector<Double_t> * energy,
+                          * pt ,
                           * eta,
                           * phi;
     std::vector<Int_t> * charge;
     MyGenTracks ()
-    :   pt    (0x0)
-    ,   eta   (0x0)
-    ,   phi   (0x0)
-    ,   charge(0x0)
+        :   energy(0x0)
+        ,   pt    (0x0)
+        ,   eta   (0x0)
+        ,   phi   (0x0)
+        ,   charge(0x0)
     {}
 };
 
@@ -98,14 +99,39 @@ struct MyRecoTracks : public MyGenTracks
                           * dz      ,
                           * dzError ;
     MyRecoTracks ()
-    :   ptError (0x0)
-    ,   etaError(0x0)
-    ,   phiError(0x0)
-    ,   dxy     (0x0)
-    ,   dxyError(0x0)
-    ,   dz      (0x0)
-    ,   dzError (0x0)
-    {
-        //MyGenTracks();
-    }
+        :   MyGenTracks()
+        ,   ptError (0x0)
+        ,   etaError(0x0)
+        ,   phiError(0x0)
+        ,   dxy     (0x0)
+        ,   dxyError(0x0)
+        ,   dz      (0x0)
+        ,   dzError (0x0)
+    {}
+};
+
+struct MyHFRecHit
+{
+    std::vector<Float_t> * energy;
+    
+    MyHFRecHit ()
+        :   energy (0x0)
+    {}
+};
+
+struct MyHFCaloTower
+{
+    std::vector<Double_t> * energy,
+                          * emEnergy,
+                          * hadEnergy,
+                          * eta,
+                          * phi;
+
+    MyHFCaloTower ()
+        :   energy      (0x0)
+        ,   emEnergy    (0x0)
+        ,   hadEnergy   (0x0)
+        ,   eta         (0x0)
+        ,   phi         (0x0)
+    {}
 };
