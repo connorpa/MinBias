@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 #include <iostream>
-   
+
 //-- user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -27,51 +27,51 @@ bool GenPartDebug = false;
 
 void TrackAnalysisTree::GetGenPart(const edm::Event& iEvent)
 {
-  using namespace std;
-  using namespace edm;
-  using namespace reco;
+    using namespace std;
+    using namespace edm;
+    using namespace reco;
 
-  //-- Clear GenPart List
-  GenPart.clear();
+    //-- Clear GenPart List
+    GenPart.clear();
 
-   //-- Handle to access GenParticleCollection
-   Handle<GenParticleCollection> genParticles;
-   iEvent.getByLabel(genPartColl_, genParticles);
-  
-   if (!genParticles.isValid()) {
-     cerr << "TrackAnalysisTree::GetGenPart] Error: non valid GenParticleCollection " << endl;
-     return;
-   }
+    //-- Handle to access GenParticleCollection
+    Handle<GenParticleCollection> genParticles;
+    iEvent.getByLabel(genPartColl_, genParticles);
 
-   //-- position of the simulated primary vertex
-   math::XYZPoint PosPVsim = (*genParticles)[2].vertex(); // QUESTION
+    if (!genParticles.isValid()) {
+        cerr << "TrackAnalysisTree::GetGenPart] Error: non valid GenParticleCollection " << endl;
+        return;
+    }
 
-   simVertex.x = PosPVsim.X();
-   simVertex.y = PosPVsim.Y();  // QUESTION
-   simVertex.z = PosPVsim.Z();
+    //-- position of the simulated primary vertex
+    math::XYZPoint PosPVsim = (*genParticles)[2].vertex(); // QUESTION
 
-   if(GenPartDebug) simVertex.Print();
+    simVertex.x = PosPVsim.X();
+    simVertex.y = PosPVsim.Y();  // QUESTION
+    simVertex.z = PosPVsim.Z();
 
-   //-- Loop on generated particle and store if status = 1
-   if(GenPartDebug) cout << "number of gen particles: "<<genParticles->size()<<endl;
-   
-   for(GenParticleCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) {
-     
-     MyGenPart genpart;
+    if(GenPartDebug) simVertex.Print();
 
-     //-- filling inherited from MyPart
-     genpart.SetPxPyPzE(p->px(),p->py(),p->pz(),p->energy());
-     genpart.charge  = p->charge();
+    //-- Loop on generated particle and store if status = 1
+    if(GenPartDebug) cout << "number of gen particles: "<<genParticles->size()<<endl;
 
-     //-- extra properties
-     genpart.pdgId   = p->pdgId();
-     genpart.status  = p->status();
-     //genpart.name    = (pdt->particle(p->pdgId()))->name();
+    for(GenParticleCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) {
 
-     //-- store if status = 1
-     if(genpart.status==1) GenPart.push_back(genpart);
-     if(genpart.status==1 && GenPartDebug) genpart.Print();
-   }
+        MyGenPart genpart;
+
+        //-- filling inherited from MyPart
+        genpart.SetPxPyPzE(p->px(),p->py(),p->pz(),p->energy());
+        genpart.charge  = p->charge();
+
+        //-- extra properties
+        genpart.pdgId   = p->pdgId();
+        genpart.status  = p->status();
+        //genpart.name    = (pdt->particle(p->pdgId()))->name();
+
+        //-- store if status = 1
+        if(genpart.status==1) GenPart.push_back(genpart);
+        if(genpart.status==1 && GenPartDebug) genpart.Print();
+    }
 }
 
 //void TrackAnalysisTree::FillGenPart(const reco::GenParticle& ingp, MyGenPart& outgp){

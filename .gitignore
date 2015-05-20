@@ -1,0 +1,16 @@
+# extension to ignore
+*.a
+*.o
+*.root
+*.exe
+*.so
+*.d
+*.gch
+*.h.gch
+*.pcm
+*.pyc
+*.old
+# directories to ignore
+**/plots
+**/HFTriggerAnalyzer
+**/UACastor
