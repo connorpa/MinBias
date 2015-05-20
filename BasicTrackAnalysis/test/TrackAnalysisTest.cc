@@ -33,10 +33,22 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     //by  b_branchname->GetEntry(ientry); //read only this branch
     if (fChain == 0) return;
 
-    Long64_t nentries = (maxentries <= 0) ? fChain->GetEntriesFast() : max(fChain->GetEntriesFast(),maxentries);
+    // counters
+    const Long64_t nentries = (maxentries <= 0) ? fChain->GetEntriesFast() : min(fChain->GetEntriesFast(),maxentries);
+    unsigned int progress = 0;  // counter  to see the progress of the loop
+    Long64_t nbytes = 0, nb = 0; // dunno the use of this... (given by TTree::MakeClass())
 
-    Long64_t nbytes = 0, nb = 0;
-    for (Long64_t jentry=0; jentry<nentries;jentry++) {
+    cout << "Running over " << nentries << " entries..." << endl;
+    for (Long64_t jentry=0; jentry<nentries;jentry++)
+    {
+        // just a counter to see the progress of the loop
+        if ((100*jentry)/nentries != progress)
+        {
+            progress = (100*jentry)/nentries;
+            cout << "Loop: " << progress << "%" << endl;
+        }
+
+        // load the entry
         Long64_t ientry = LoadTree(jentry);
         if (ientry < 0) break;
         nb = fChain->GetEntry(jentry);   nbytes += nb;
@@ -68,15 +80,4 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-int main (int argc, char * argv[])
-{
-    TApplication * rootapp = new TApplication ("tapp", &argc, argv);
-    //if (rootapp->Argc() < 1)
-    //    return EXIT_FAILURE;
-    TrackAnalysis * ta = new TrackAnalysis ();
-    //cp->Show(2);
-    ta->Loop();//(rootapp->Argc() > 1 ? (Long64_t) atoi(rootapp->Argv(1)) : 0);
-    rootapp->Terminate();
-    return EXIT_SUCCESS;
-}
+#include "main.cc"

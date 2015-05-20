@@ -32,7 +32,7 @@ class TrackAnalysis // TODO: handle the cases where only certain branches are pr
 
     // Fixed size dimensions of array or collections stored in the TTree if any.
 
-    // Declaration of leaf types
+    // Declaration of branch objects (see struct.h)
     MyBeamSpot      BS;
     MyEvtId         EI;
     MyGenVertices   GV;

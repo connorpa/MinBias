@@ -110,25 +110,33 @@ struct MyRecoTracks : public MyGenTracks
     {}
 };
 
-struct MyHFRecHit
+struct MyRecHit
 {
     std::vector<Float_t> * energy;
     
-    MyHFRecHit ()
+    MyRecHit ()
         :   energy (0x0)
     {}
 };
 
-struct MyHFCaloTower
+struct MyCaloTower
 {
     std::vector<Double_t> * energy,
+                          * energyInHE,
+                          * energyInHB,
+                          * energyInHO,
+                          * energyInHF,
                           * emEnergy,
                           * hadEnergy,
                           * eta,
                           * phi;
 
-    MyHFCaloTower ()
+    MyCaloTower ()
         :   energy      (0x0)
+        ,   energyInHE  (0x0)
+        ,   energyInHB  (0x0)
+        ,   energyInHO  (0x0)
+        ,   energyInHF  (0x0)
         ,   emEnergy    (0x0)
         ,   hadEnergy   (0x0)
         ,   eta         (0x0)

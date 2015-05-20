@@ -12,6 +12,7 @@
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/HcalRecHit"/>
+<use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/CaloTowers"/>
 
 <use name="SimGeneral/HepPDTRecord"/>

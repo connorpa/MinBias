@@ -52,11 +52,6 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                              NKIN = 4, // KINematics, plus multiplicity
                              NDIR = 3; // DIRections
     const double ETABINWIDTH = maxtracketa/((double) NETABIN);
-    TString outputfilename = TString::Format("pt_gt_%f_eta_st_%f", minpt, maxtracketa); // it should include the phase space
-    outputfilename.ReplaceAll(".", "_"); // replace . by _ in the given values of the phase space
-    outputfilename = path_to_tree + outputfilename; // it should specify the name of the input file
-    outputfilename.ReplaceAll(".root", ""); // but without the .root that would appear in the middle...
-    outputfilename += ".root"; // and add .root at the end of the filename
 
     /************************* BOOKING HISTOGRAMS *****************************/
 
@@ -277,7 +272,13 @@ void TrackAnalysis::Loop(Long64_t maxentries)
 
     /************************* SAVING *******************************/
 
+    TString outputfilename = TString::Format("_" __FILE__ "_pt_gt_%f_eta_st_%f", minpt, maxtracketa); // 1) it should include the phase space
+    outputfilename.ReplaceAll(".", "_"); // replace . by _ in the given values of the phase space
+    outputfilename = path_to_tree + outputfilename; // it should specify the name of the input file
+    outputfilename.ReplaceAll(".root", ""); // but without the .root that would appear in the middle...
+    outputfilename += ".root"; // and add .root at the end of the filename
     cout << "Saving histograms into " << outputfilename << endl;
+
     TFile * f = new TFile (outputfilename, "RECREATE");
     // this loop just runs over all the TH1D to save them
     // (note: here we use an iterator to run over the map)
@@ -288,25 +289,10 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     f->Close();
     cout << "File closed." << endl;
 
-    /* PRINTING */
+    /*********************** PRINTING *************************/
 
-    // TODO: later in different file... (see plotfast.C in the data directory)
+    // NOT HERE
+    // TODO: later in different file... (e.g. plotfast_*.C in the data directory)
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-int main (int argc, char * argv[])
-{
-    TApplication * rootapp = new TApplication ("controlplots", &argc, argv);
-    if (rootapp->Argc() <= 2)
-    {
-        cout << "Please give as arguments:" << endl
-             << "- the path the the file containing the tree," << endl
-             << "- and the max nb of entries (0 means everything)." << endl;
-        return EXIT_FAILURE;
-    }
-    TrackAnalysis * ta = new TrackAnalysis (rootapp->Argv(1)); // recall: a second argument can be given to specify wether the file is a data file or a montecarlo file (default is MC)
-    ta->Loop(atoi(rootapp->Argv(2))); // TODO: find more root-suitable conversion
-    rootapp->Terminate();
-    cout << rootapp->Argv(0) << " ended." << endl;
-    return EXIT_SUCCESS;
-}
+#include "main.cc"

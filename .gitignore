@@ -10,6 +10,13 @@
 *.pcm
 *.pyc
 *.old
+*.bckp
+*.backup
+*.pdf
+*.png
+*.jpg
+*.gif
+*.jpeg
 # directories to ignore
 **/plots
 **/HFTriggerAnalyzer

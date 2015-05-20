@@ -71,6 +71,7 @@ with good control on the filling of the tree from the python file
 // rec hit
 //#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 //#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 // calo tower
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -118,8 +119,12 @@ private:
     const bool StoreLumiProducer          ;    edm::InputTag LumiProducerInputTag          ;    MyEvtId         EI;
     const bool StoreOfflinePrimaryVertices;    edm::InputTag OfflinePrimaryVerticesInputTag;    MyRecoVertices  RV;
     const bool StoreGeneralTracks         ;    edm::InputTag GeneralTracksInputTag         ;    MyRecoTracks    RT;
-    const bool StoreHFRecHit              ;    edm::InputTag HFRecHitInputTag              ;    MyHFRecHit      RH;
-    const bool StoreCaloTower             ;    edm::InputTag CaloTowerInputTag             ;    MyHFCaloTower   CT;
+    const bool StoreEBRecHit              ;    edm::InputTag EBRecHitInputTag              ;    MyRecHit        RH_EB;
+    const bool StoreEERecHit              ;    edm::InputTag EERecHitInputTag              ;    MyRecHit        RH_EE;
+    const bool StoreHBHERecHit            ;    edm::InputTag HBHERecHitInputTag            ;    MyRecHit        RH_HBHE;
+    const bool StoreHORecHit              ;    edm::InputTag HORecHitInputTag              ;    MyRecHit        RH_HO;
+    const bool StoreHFRecHit              ;    edm::InputTag HFRecHitInputTag              ;    MyRecHit        RH_HF;
+    const bool StoreCaloTower             ;    edm::InputTag CaloTowerInputTag             ;    MyCaloTower     CT;
     const bool StoreGenParticles          ;    edm::InputTag GenParticlesInputTag          ;    MyGenVertices   GV;
                                                                                                 MyGenTracks     GT;
     // TODO trigger?
@@ -142,7 +147,11 @@ TreeProducer::TreeProducer(const edm::ParameterSet& iConfig)
     ,   GETPARAM(LumiProducer)
     ,   GETPARAM(OfflinePrimaryVertices)
     ,   GETPARAM(GeneralTracks)
-    ,   GETPARAM(HFRecHit) 
+    ,   GETPARAM(EBRecHit)
+    ,   GETPARAM(EERecHit)
+    ,   GETPARAM(HBHERecHit)
+    ,   GETPARAM(HORecHit) 
+    ,   GETPARAM(HFRecHit)
     ,   GETPARAM(CaloTower)      
     ,   GETPARAM(GenParticles)
 #undef GETEPARAM
@@ -152,6 +161,10 @@ TreeProducer::TreeProducer(const edm::ParameterSet& iConfig)
     GETINPUTTAG(LumiProducer);
     GETINPUTTAG(OfflinePrimaryVertices);
     GETINPUTTAG(GeneralTracks);
+    GETINPUTTAG(EBRecHit);
+    GETINPUTTAG(EERecHit);
+    GETINPUTTAG(HBHERecHit);
+    GETINPUTTAG(HORecHit);
     GETINPUTTAG(HFRecHit);
     GETINPUTTAG(CaloTower);
     GETINPUTTAG(GenParticles);
@@ -168,7 +181,7 @@ TreeProducer::~TreeProducer()
 
 
 //
-// member functions
+// methods
 //
 
 // ------------ method called for each event  ------------
@@ -297,7 +310,6 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         edm::Handle<reco::TrackCollection> trackcollection; // typedef std::vector<Track> TrackCollection; 
         iEvent.getByLabel(GeneralTracksInputTag,trackcollection);
 
-        //RT.energy  ->clear();
         RT.pt      ->clear();
         RT.eta     ->clear();
         RT.phi     ->clear();
@@ -311,7 +323,6 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         RT.charge  ->clear();
         for (unsigned int itrack = 0 ; itrack < trackcollection->size() ; itrack++)
         {
-            //RT.energy  ->push_back( (trackcollection->at(itrack)). // TODO ???
             RT.pt      ->push_back( (trackcollection->at(itrack)).pt()       ); 
             RT.eta     ->push_back( (trackcollection->at(itrack)).eta()      );
             RT.phi     ->push_back( (trackcollection->at(itrack)).phi()      );
@@ -326,28 +337,59 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         }
     }
 
-    // REC HIT
+    // EE REC HIT
+    if (StoreEERecHit)
+    {
+        edm::Handle<EcalRecHitCollection> eerechitcollection;
+        iEvent.getByLabel(EERecHitInputTag,eerechitcollection);
+
+        RH_EE.energy->clear();
+        for(EERecHitCollection::const_iterator it_rechit = eerechitcollection->begin(); it_rechit != eerechitcollection->end(); it_rechit++)
+            RH_EE.energy->push_back(it_rechit->energy());
+    }
+
+    // EB REC HIT
+    if (StoreEBRecHit)
+    {
+        edm::Handle<EcalRecHitCollection> ebrechitcollection;
+        iEvent.getByLabel(EBRecHitInputTag,ebrechitcollection);
+
+        RH_EB.energy->clear();
+        for(EBRecHitCollection::const_iterator it_rechit = ebrechitcollection->begin(); it_rechit != ebrechitcollection->end(); it_rechit++)
+            RH_EB.energy->push_back(it_rechit->energy());
+    }
+
+    // HBHE REC HIT
+    if (StoreHBHERecHit)
+    {
+        edm::Handle<HBHERecHitCollection> hbherechitcollection;
+        iEvent.getByLabel(HBHERecHitInputTag,hbherechitcollection);
+
+        RH_HBHE.energy->clear();
+        for(HBHERecHitCollection::const_iterator it_rechit = hbherechitcollection->begin(); it_rechit != hbherechitcollection->end(); it_rechit++)
+            RH_HBHE.energy->push_back(it_rechit->energy());
+    }
+
+    // HO REC HIT
+    if (StoreHORecHit)
+    {
+        edm::Handle<HORecHitCollection> horechitcollection;
+        iEvent.getByLabel(HORecHitInputTag,horechitcollection);
+
+        RH_HO.energy->clear();
+        for(HORecHitCollection::const_iterator it_rechit = horechitcollection->begin(); it_rechit != horechitcollection->end(); it_rechit++)
+            RH_HO.energy->push_back(it_rechit->energy());
+    }
+
+    // HF REC HIT
     if (StoreHFRecHit)
     {
         edm::Handle<HFRecHitCollection> hfrechitcollection;
         iEvent.getByLabel(HFRecHitInputTag,hfrechitcollection);
 
-        RH.energy->clear();
+        RH_HF.energy->clear();
         for(HFRecHitCollection::const_iterator it_rechit = hfrechitcollection->begin(); it_rechit != hfrechitcollection->end(); it_rechit++)
-        {
-            RH.energy->push_back(it_rechit->energy());
-        //    double signal = (hfrechitcollection->at(irechit)).energy(); // TODO
-        //    if(signal < Erhmin) Erhmin = signal;
-
-        //    hHFsignal->Fill(signal);
-        //    if(IsSD) hHFsignal_SD->Fill(signal);
-        //    if(!IsSD) hHFsignal_NSD->Fill(signal);
-
-        //    for(int nsig = 0; nsig < NSIGMA; nsig++) {
-        //        double threshold = (nsig+1); 
-        //        //-- at least one hf digi above threshold
-        //        if((signal > threshold) && data_type) IsHF[nsig] = true;
-        }
+            RH_HF.energy->push_back(it_rechit->energy());
     }
 
     // CALO TOWER
@@ -356,22 +398,29 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         edm::Handle<CaloTowerCollection> calotowercollection;
         iEvent.getByLabel(CaloTowerInputTag,calotowercollection);
 
-        CT.energy   ->clear();
-        CT.emEnergy ->clear();
-        CT.hadEnergy->clear();
-        CT.eta      ->clear();
-        CT.phi      ->clear();
-        //for (unsigned int ical = 0 ; ical < calotowercollection
+        CT.energy    ->clear();
+        CT.energyInHE->clear();
+        CT.energyInHB->clear();
+        CT.energyInHO->clear();
+        CT.energyInHF->clear();
+        CT.emEnergy  ->clear();
+        CT.hadEnergy ->clear();
+        CT.eta       ->clear();
+        CT.phi       ->clear();
         for (CaloTowerCollection::const_iterator it_calo = calotowercollection->begin() ; it_calo != calotowercollection->end() ; it_calo++)
         {
-            // the calo tower must belong to the HF
+            // safety: check the validity
             if (! CaloTowerDetId::validDetId (it_calo->eta(),it_calo->phi())) continue;
 
-            CT.energy   ->push_back(it_calo->energy   ());
-            CT.emEnergy ->push_back(it_calo->emEnergy ());
-            CT.hadEnergy->push_back(it_calo->hadEnergy());
-            CT.eta      ->push_back(it_calo->eta      ());
-            CT.phi      ->push_back(it_calo->phi      ());
+            CT.energy    ->push_back(it_calo->energy    ());
+            CT.energyInHE->push_back(it_calo->energyInHE());
+            CT.energyInHB->push_back(it_calo->energyInHB());
+            CT.energyInHO->push_back(it_calo->energyInHO());
+            CT.energyInHF->push_back(it_calo->energyInHF());
+            CT.emEnergy  ->push_back(it_calo->emEnergy  ());
+            CT.hadEnergy ->push_back(it_calo->hadEnergy ());
+            CT.eta       ->push_back(it_calo->eta       ());
+            CT.phi       ->push_back(it_calo->phi       ());
         }
     }
 
@@ -441,18 +490,38 @@ void TreeProducer::beginJob()
         tree->Branch("RecoTracks.charge"  , &RT.charge  ); 
     }
 
+    // ECAL ENDCAPS REC HIT TODO: leafs
+    if (StoreEERecHit)
+        tree->Branch("EERecHit.energy"    , &RH_EE.energy);
+
+    // REC HIT TODO: leafs
+    if (StoreEBRecHit)
+        tree->Branch("EBRecHit.energy"    , &RH_EB.energy);
+
+    // REC HIT TODO: leafs
+    if (StoreHBHERecHit)
+        tree->Branch("HBHERecHit.energy"  , &RH_HBHE.energy);
+
+    // REC HIT TODO: leafs
+    if (StoreHORecHit)
+        tree->Branch("HORecHit.energy"    , &RH_HO.energy);
+
     // REC HIT TODO: leafs
     if (StoreHFRecHit)
-        tree->Branch("HFRecHit.energy"    , &RH.energy);
+        tree->Branch("HFRecHit.energy"    , &RH_HF.energy);
 
     // CALO TOWER TODO: leafs
     if (StoreCaloTower)
     {
-        tree->Branch("HFCaloTower.energy"   , &CT.energy   );
-        tree->Branch("HFCaloTower.emEnergy" , &CT.emEnergy );
-        tree->Branch("HFCaloTower.hadEnergy", &CT.hadEnergy);
-        tree->Branch("HFCaloTower.eta"      , &CT.eta      );
-        tree->Branch("HFCaloTower.phi"      , &CT.phi      );
+        tree->Branch("HFCaloTower.energy"    , &CT.energy    );
+        tree->Branch("HFCaloTower.energyInHE", &CT.energyInHE);
+        tree->Branch("HFCaloTower.energyInHB", &CT.energyInHB);
+        tree->Branch("HFCaloTower.energyInHO", &CT.energyInHO);
+        tree->Branch("HFCaloTower.energyInHF", &CT.energyInHF);
+        tree->Branch("HFCaloTower.emEnergy"  , &CT.emEnergy  );
+        tree->Branch("HFCaloTower.hadEnergy" , &CT.hadEnergy );
+        tree->Branch("HFCaloTower.eta"       , &CT.eta       );
+        tree->Branch("HFCaloTower.phi"       , &CT.phi       );
     }
 }
 
