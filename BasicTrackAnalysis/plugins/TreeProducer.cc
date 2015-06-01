@@ -117,7 +117,7 @@ private:
     // CAUTION: the My* object (stored in struct.h) are not in one-to-one correspondance with the InputTags
     const bool StoreBeamSpot              ;    edm::InputTag BeamSpotInputTag              ;    MyBeamSpot      BS;
     const bool StoreLumiProducer          ;    edm::InputTag LumiProducerInputTag          ;    MyEvtId         EI;
-    const bool StoreOfflinePrimaryVertices;    edm::InputTag OfflinePrimaryVerticesInputTag;    MyRecoVertices  RV;
+    const bool StorePrimaryVertices;    edm::InputTag PrimaryVerticesInputTag;    MyRecoVertices  RV;
     const bool StoreGeneralTracks         ;    edm::InputTag GeneralTracksInputTag         ;    MyRecoTracks    RT;
     const bool StoreEBRecHit              ;    edm::InputTag EBRecHitInputTag              ;    MyRecHit        RH_EB;
     const bool StoreEERecHit              ;    edm::InputTag EERecHitInputTag              ;    MyRecHit        RH_EE;
@@ -145,7 +145,7 @@ TreeProducer::TreeProducer(const edm::ParameterSet& iConfig)
 #define GETPARAM(Object) Store##Object (iConfig.getParameter<bool>("Store" #Object))
     :   GETPARAM(BeamSpot)
     ,   GETPARAM(LumiProducer)
-    ,   GETPARAM(OfflinePrimaryVertices)
+    ,   GETPARAM(PrimaryVertices)
     ,   GETPARAM(GeneralTracks)
     ,   GETPARAM(EBRecHit)
     ,   GETPARAM(EERecHit)
@@ -159,7 +159,7 @@ TreeProducer::TreeProducer(const edm::ParameterSet& iConfig)
 #define GETINPUTTAG(Object) if (Store##Object) Object##InputTag = iConfig.getParameter<edm::InputTag>(#Object)
     GETINPUTTAG(BeamSpot);
     GETINPUTTAG(LumiProducer);
-    GETINPUTTAG(OfflinePrimaryVertices);
+    GETINPUTTAG(PrimaryVertices);
     GETINPUTTAG(GeneralTracks);
     GETINPUTTAG(EBRecHit);
     GETINPUTTAG(EERecHit);
@@ -239,28 +239,31 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     // + SIMULATED VERTEX (TODO: check...)
     if (StoreGenParticles)
     {
-        edm::Handle<reco::GenParticleCollection> genParticles;
-        iEvent.getByLabel(GenParticlesInputTag, genParticles);
+        edm::Handle<reco::GenParticleCollection> genparticlescollection;
+        iEvent.getByLabel(GenParticlesInputTag, genparticlescollection);
 
         GT.energy->clear();
         GT.pt    ->clear();
         GT.eta   ->clear();
         GT.phi   ->clear();
         GT.charge->clear();
+        GT.status->clear();
+        GT.pdgId ->clear();
         GV.x->clear();
         GV.y->clear();
         GV.z->clear();
-        for (unsigned int itrack = 0 ; itrack < genParticles->size() ; itrack++)
+        for (unsigned int itrack = 0 ; itrack < genparticlescollection->size() ; itrack++)
         {
-            if ((genParticles->at(itrack)).status() != 1) continue; // TODO: check
-            GT.energy->push_back( (genParticles->at(itrack)).energy() );
-            GT.pt    ->push_back( (genParticles->at(itrack)).pt()     ); 
-            GT.eta   ->push_back( (genParticles->at(itrack)).eta()    );
-            GT.phi   ->push_back( (genParticles->at(itrack)).phi()    );
-            //TODO: pdgId, status
-            GT.charge->push_back( (genParticles->at(itrack)).charge() );
+            //if ((genparticlescollection->at(itrack)).status() != 1) continue; // TODO: check
+            GT.energy->push_back( (genparticlescollection->at(itrack)).energy() );
+            GT.pt    ->push_back( (genparticlescollection->at(itrack)).pt()     ); 
+            GT.eta   ->push_back( (genparticlescollection->at(itrack)).eta()    );
+            GT.phi   ->push_back( (genparticlescollection->at(itrack)).phi()    );
+            GT.charge->push_back( (genparticlescollection->at(itrack)).charge() );
+            GT.status->push_back( (genparticlescollection->at(itrack)).status() );
+            GT.pdgId ->push_back( (genparticlescollection->at(itrack)).pdgId()  );
 
-            math::XYZPoint vertex = (genParticles->at(2)).vertex();
+            math::XYZPoint vertex = (genparticlescollection->at(2)).vertex();
             if (GV.x->size() == 0 ||
                     (vertex.X() != GV.x->back() ||
                      vertex.Y() != GV.y->back() ||
@@ -274,10 +277,10 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
     // RECONSTRUCTED VERTEX
-    if (StoreOfflinePrimaryVertices)
+    if (StorePrimaryVertices)
     {
         edm::Handle<reco::VertexCollection> generalverticescollection; // typedef std::vector<Track> TrackCollection; 
-        iEvent.getByLabel(OfflinePrimaryVerticesInputTag,generalverticescollection);
+        iEvent.getByLabel(PrimaryVerticesInputTag,generalverticescollection);
 
         RV.x       ->clear();
         RV.y       ->clear();
@@ -321,6 +324,8 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         RT.dz      ->clear();
         RT.dzError ->clear();
         RT.charge  ->clear();
+        RT.chi2    ->clear();
+        RT.ndof    ->clear();
         for (unsigned int itrack = 0 ; itrack < trackcollection->size() ; itrack++)
         {
             RT.pt      ->push_back( (trackcollection->at(itrack)).pt()       ); 
@@ -333,7 +338,8 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             RT.dxyError->push_back( (trackcollection->at(itrack)).dxyError() );
             RT.dz      ->push_back( (trackcollection->at(itrack)).dz()       );
             RT.dzError ->push_back( (trackcollection->at(itrack)).dzError()  );
-            RT.charge  ->push_back( (trackcollection->at(itrack)).charge()   );
+            RT.chi2    ->push_back( (trackcollection->at(itrack)).chi2()     );
+            RT.ndof    ->push_back( (trackcollection->at(itrack)).ndof()     );
         }
     }
 
@@ -451,6 +457,8 @@ void TreeProducer::beginJob()
         tree->Branch("GenTracks.eta"   , &GT.eta   ); 
         tree->Branch("GenTracks.phi"   , &GT.phi   ); 
         tree->Branch("GenTracks.charge", &GT.charge); 
+        tree->Branch("GenTracks.status", &GT.status); 
+        tree->Branch("GenTracks.pdgId" , &GT.pdgId ); 
                              
         // SIMULATED VERTEX     TODO: leafs
         tree->Branch("GenVertices.x" , &GV.x); 
@@ -459,7 +467,7 @@ void TreeProducer::beginJob()
     }
                        
     // RECONSTRUCTED VERTEX TODO: leafs
-    if (StoreOfflinePrimaryVertices)
+    if (StorePrimaryVertices)
     {
         tree->Branch("RecoVertices.x"       , &RV.x       ); 
         tree->Branch("RecoVertices.y"       , &RV.y       ); 
@@ -488,6 +496,8 @@ void TreeProducer::beginJob()
         tree->Branch("RecoTracks.dz"      , &RT.dz      );
         tree->Branch("RecoTracks.dzError" , &RT.dzError );
         tree->Branch("RecoTracks.charge"  , &RT.charge  ); 
+        tree->Branch("RecoTracks.chi2"    , &RT.chi2    ); 
+        tree->Branch("RecoTracks.ndof"    , &RT.ndof    ); 
     }
 
     // ECAL ENDCAPS REC HIT TODO: leafs

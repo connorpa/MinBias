@@ -79,13 +79,16 @@ struct MyGenTracks
                           * pt ,
                           * eta,
                           * phi;
-    std::vector<Int_t> * charge;
+    std::vector<Int_t> * charge,
+                       * status,
+                       * pdgId;
     MyGenTracks ()
         :   energy(0x0)
         ,   pt    (0x0)
         ,   eta   (0x0)
         ,   phi   (0x0)
         ,   charge(0x0)
+        ,   pdgId (0x0)
     {}
 };
 
@@ -97,7 +100,9 @@ struct MyRecoTracks : public MyGenTracks
                           * dxy     ,
                           * dxyError,
                           * dz      ,
-                          * dzError ;
+                          * dzError ,
+                          * chi2    ;
+    std::vector<Int_t> * ndof;
     MyRecoTracks ()
         :   MyGenTracks()
         ,   ptError (0x0)
@@ -107,6 +112,8 @@ struct MyRecoTracks : public MyGenTracks
         ,   dxyError(0x0)
         ,   dz      (0x0)
         ,   dzError (0x0)
+        ,   chi2    (0x0)
+        ,   ndof    (0x0)
     {}
 };
 
