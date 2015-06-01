@@ -90,9 +90,9 @@ class TrackAnalysis // TODO: handle the cases where only certain branches are pr
 
 public:
     TrackAnalysis(TTree * tree,
-                  bool kGenLevel = true);
+                  bool kGenLevel);
     TrackAnalysis(TString treefilename,
-                  bool kGenLevel = true);
+                  bool kGenLevel);
     virtual ~TrackAnalysis();
     virtual Int_t    Cut(Long64_t entry);
     virtual Int_t    GetEntry(Long64_t entry);

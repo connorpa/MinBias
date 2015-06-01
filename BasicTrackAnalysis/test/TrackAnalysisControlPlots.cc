@@ -276,6 +276,7 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     outputfilename.ReplaceAll(".", "_"); // replace . by _ in the given values of the phase space
     outputfilename = path_to_tree + outputfilename; // it should specify the name of the input file
     outputfilename.ReplaceAll(".root", ""); // but without the .root that would appear in the middle...
+    outputfilename.ReplaceAll("bonsai", "plots"); // and replacing the initial keywork to identify the kind of object that are stored in the file
     outputfilename += ".root"; // and add .root at the end of the filename
     cout << "Saving histograms into " << outputfilename << endl;
 
