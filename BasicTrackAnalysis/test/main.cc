@@ -1,6 +1,9 @@
 int main (int argc, char * argv[])
 {
+    // declaring TApplication (needed to use the full power of Root as a library)
     TApplication * rootapp = new TApplication ("test", &argc, argv);
+
+    // checking the given arguments to the standalone application
     if (rootapp->Argc() <= 2)
     {
         cout << "Please give as arguments:" << endl
@@ -8,9 +11,19 @@ int main (int argc, char * argv[])
              << "- and the max nb of entries (0 means everything)." << endl;
         return EXIT_FAILURE;
     }
-    TrackAnalysis * ta = new TrackAnalysis (rootapp->Argv(1)); // recall: a second argument can be given to specify wether the file is a data file or a montecarlo file (default is MC)
-    ta->Loop(atoi(rootapp->Argv(2))); // TODO: find more root-suitable conversion
+
+    // global arguments of the analysis: filename, MC/data, nevents
+    const TString applicationname = rootapp->Argv(0),
+                  filename        = rootapp->Argv(1);
+    const Long64_t maxevents = atoi(rootapp->Argv(2)); // TODO: find a more proper conversion
+    const bool kGenLevel = filename.Contains("MC");
+
+    // working
+    TrackAnalysis * ta = new TrackAnalysis (filename, kGenLevel); // recall: a second argument can be given to specify wether the file is a data file or a montecarlo file (default is MC)
+    ta->Loop(maxevents); // TODO: find more root-suitable conversion
     rootapp->Terminate();
-    cout << rootapp->Argv(0) << " ended." << endl;
+
+    // ending
+    cout << filename << " ended." << endl;
     return EXIT_SUCCESS;
 }
