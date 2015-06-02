@@ -94,8 +94,8 @@ using namespace std;
 
 class TreeProducer : public edm::EDAnalyzer {
 public:
-    explicit TreeProducer(const edm::ParameterSet&); // TODO: initialise collections
-    ~TreeProducer();  // nothing TODO, apparently
+    explicit TreeProducer(const edm::ParameterSet&);
+    //~TreeProducer();
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions); // TODO: ??????
 
@@ -114,19 +114,19 @@ private:
     edm::Service<TFileService> fs;
     TTree * tree;
 
-    // CAUTION: the My* object (stored in struct.h) are not in one-to-one correspondance with the InputTags
-    const bool StoreBeamSpot              ;    edm::InputTag BeamSpotInputTag              ;    MyBeamSpot      BS;
-    const bool StoreLumiProducer          ;    edm::InputTag LumiProducerInputTag          ;    MyEvtId         EI;
-    const bool StorePrimaryVertices;    edm::InputTag PrimaryVerticesInputTag;    MyRecoVertices  RV;
-    const bool StoreGeneralTracks         ;    edm::InputTag GeneralTracksInputTag         ;    MyRecoTracks    RT;
-    const bool StoreEBRecHit              ;    edm::InputTag EBRecHitInputTag              ;    MyRecHit        RH_EB;
-    const bool StoreEERecHit              ;    edm::InputTag EERecHitInputTag              ;    MyRecHit        RH_EE;
-    const bool StoreHBHERecHit            ;    edm::InputTag HBHERecHitInputTag            ;    MyRecHit        RH_HBHE;
-    const bool StoreHORecHit              ;    edm::InputTag HORecHitInputTag              ;    MyRecHit        RH_HO;
-    const bool StoreHFRecHit              ;    edm::InputTag HFRecHitInputTag              ;    MyRecHit        RH_HF;
-    const bool StoreCaloTower             ;    edm::InputTag CaloTowerInputTag             ;    MyCaloTower     CT;
-    const bool StoreGenParticles          ;    edm::InputTag GenParticlesInputTag          ;    MyGenVertices   GV;
-                                                                                                MyGenTracks     GT;
+    // CAUTION: the My* object (stored in struct.h) are not always in one-to-one correspondance with the InputTags
+    const bool StoreBeamSpot        ;  edm::InputTag BeamSpotInputTag       ;  MyBeamSpot      BS;
+    const bool StoreLumiProducer    ;  edm::InputTag LumiProducerInputTag   ;  MyEvtId         EI;
+    const bool StorePrimaryVertices ;  edm::InputTag PrimaryVerticesInputTag;  MyRecoVertices  RV;
+    const bool StoreGeneralTracks   ;  edm::InputTag GeneralTracksInputTag  ;  MyRecoTracks    RT;
+    const bool StoreEBRecHit        ;  edm::InputTag EBRecHitInputTag       ;  MyRecHit        RH_EB;
+    const bool StoreEERecHit        ;  edm::InputTag EERecHitInputTag       ;  MyRecHit        RH_EE;
+    const bool StoreHBHERecHit      ;  edm::InputTag HBHERecHitInputTag     ;  MyRecHit        RH_HBHE;
+    const bool StoreHORecHit        ;  edm::InputTag HORecHitInputTag       ;  MyRecHit        RH_HO;
+    const bool StoreHFRecHit        ;  edm::InputTag HFRecHitInputTag       ;  MyRecHit        RH_HF;
+    const bool StoreCaloTower       ;  edm::InputTag CaloTowerInputTag      ;  MyCaloTower     CT;
+    const bool StoreGenParticles    ;  edm::InputTag GenParticlesInputTag   ;  MyGenVertices   GV;
+                                                                               MyGenTracks     GT;
     // TODO trigger?
 };
 
@@ -172,12 +172,9 @@ TreeProducer::TreeProducer(const edm::ParameterSet& iConfig)
 }
 
 
-TreeProducer::~TreeProducer()
-{
-    delete tree;
-    // do anything here that needs to be done at desctruction time
-    // (e.g. close files, deallocate resources etc.)
-}
+//TreeProducer::~TreeProducer()
+//{
+//}
 
 
 //
@@ -188,9 +185,7 @@ TreeProducer::~TreeProducer()
 void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     // EVENT ID
-
-    // no Handle to define, this information is already in iEvent
-
+    // note: no Handle to define, this information is already in iEvent
 	EI.Run       = iEvent.id().run();   
 	EI.Evt       = iEvent.id().event();
 	EI.LumiBlock = iEvent.luminosityBlock();
@@ -256,12 +251,12 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         {
             //if ((genparticlescollection->at(itrack)).status() != 1) continue; // TODO: check
             GT.energy->push_back( (genparticlescollection->at(itrack)).energy() );
-            GT.pt    ->push_back( (genparticlescollection->at(itrack)).pt()     ); 
-            GT.eta   ->push_back( (genparticlescollection->at(itrack)).eta()    );
-            GT.phi   ->push_back( (genparticlescollection->at(itrack)).phi()    );
+            GT.pt    ->push_back( (genparticlescollection->at(itrack)).pt    () ); 
+            GT.eta   ->push_back( (genparticlescollection->at(itrack)).eta   () );
+            GT.phi   ->push_back( (genparticlescollection->at(itrack)).phi   () );
             GT.charge->push_back( (genparticlescollection->at(itrack)).charge() );
             GT.status->push_back( (genparticlescollection->at(itrack)).status() );
-            GT.pdgId ->push_back( (genparticlescollection->at(itrack)).pdgId()  );
+            GT.pdgId ->push_back( (genparticlescollection->at(itrack)).pdgId () );
 
             math::XYZPoint vertex = (genparticlescollection->at(2)).vertex();
             if (GV.x->size() == 0 ||
@@ -294,16 +289,16 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         RV.isValid ->clear();
         for (unsigned int ivertex = 0 ; ivertex < generalverticescollection->size() ; ivertex++)
         {
-            RV.x       ->push_back( (generalverticescollection->at(ivertex)).x()        );
-            RV.y       ->push_back( (generalverticescollection->at(ivertex)).y()        );
-            RV.z       ->push_back( (generalverticescollection->at(ivertex)).z()        );
-            RV.xError  ->push_back( (generalverticescollection->at(ivertex)).xError()   );
-            RV.yError  ->push_back( (generalverticescollection->at(ivertex)).yError()   );
-            RV.zError  ->push_back( (generalverticescollection->at(ivertex)).zError()   );
-            RV.chi2    ->push_back( (generalverticescollection->at(ivertex)).chi2()     );
-            RV.ndof    ->push_back( (generalverticescollection->at(ivertex)).ndof()     );
-            RV.isFake  ->push_back( (generalverticescollection->at(ivertex)).isFake()   );
-            RV.isValid ->push_back( (generalverticescollection->at(ivertex)).isValid()  );
+            RV.x       ->push_back( (generalverticescollection->at(ivertex)).x       () );
+            RV.y       ->push_back( (generalverticescollection->at(ivertex)).y       () );
+            RV.z       ->push_back( (generalverticescollection->at(ivertex)).z       () );
+            RV.xError  ->push_back( (generalverticescollection->at(ivertex)).xError  () );
+            RV.yError  ->push_back( (generalverticescollection->at(ivertex)).yError  () );
+            RV.zError  ->push_back( (generalverticescollection->at(ivertex)).zError  () );
+            RV.chi2    ->push_back( (generalverticescollection->at(ivertex)).chi2    () );
+            RV.ndof    ->push_back( (generalverticescollection->at(ivertex)).ndof    () );
+            RV.isFake  ->push_back( (generalverticescollection->at(ivertex)).isFake  () );
+            RV.isValid ->push_back( (generalverticescollection->at(ivertex)).isValid () );
         }
     }
 
@@ -313,33 +308,49 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         edm::Handle<reco::TrackCollection> trackcollection; // typedef std::vector<Track> TrackCollection; 
         iEvent.getByLabel(GeneralTracksInputTag,trackcollection);
 
-        RT.pt      ->clear();
-        RT.eta     ->clear();
-        RT.phi     ->clear();
-        RT.ptError ->clear();
-        RT.etaError->clear();
-        RT.phiError->clear();
-        RT.dxy     ->clear();
-        RT.dxyError->clear();
-        RT.dz      ->clear();
-        RT.dzError ->clear();
-        RT.charge  ->clear();
-        RT.chi2    ->clear();
-        RT.ndof    ->clear();
+        RT.pt               ->clear();
+        RT.eta              ->clear();
+        RT.phi              ->clear();
+        RT.ptError          ->clear();
+        RT.etaError         ->clear();
+        RT.phiError         ->clear();
+        RT.dxy              ->clear();
+        RT.dxyError         ->clear();
+        RT.dz               ->clear();
+        RT.dzError          ->clear();
+        RT.charge           ->clear();
+        RT.chi2             ->clear();
+        RT.ndof             ->clear();
+        RT.vx               ->clear();
+        RT.vy               ->clear();
+        RT.vz               ->clear();
+        RT.quality          ->clear();
+        RT.numberOfValidHits->clear();
+        RT.numberOfLostHits ->clear();
         for (unsigned int itrack = 0 ; itrack < trackcollection->size() ; itrack++)
         {
-            RT.pt      ->push_back( (trackcollection->at(itrack)).pt()       ); 
-            RT.eta     ->push_back( (trackcollection->at(itrack)).eta()      );
-            RT.phi     ->push_back( (trackcollection->at(itrack)).phi()      );
-            RT.ptError ->push_back( (trackcollection->at(itrack)).ptError()  ); 
-            RT.etaError->push_back( (trackcollection->at(itrack)).etaError() );
-            RT.phiError->push_back( (trackcollection->at(itrack)).phiError() );
-            RT.dxy     ->push_back( (trackcollection->at(itrack)).dxy()      );
-            RT.dxyError->push_back( (trackcollection->at(itrack)).dxyError() );
-            RT.dz      ->push_back( (trackcollection->at(itrack)).dz()       );
-            RT.dzError ->push_back( (trackcollection->at(itrack)).dzError()  );
-            RT.chi2    ->push_back( (trackcollection->at(itrack)).chi2()     );
-            RT.ndof    ->push_back( (trackcollection->at(itrack)).ndof()     );
+            RT.pt               ->push_back( (trackcollection->at(itrack)).pt               () ); 
+            RT.eta              ->push_back( (trackcollection->at(itrack)).eta              () );
+            RT.phi              ->push_back( (trackcollection->at(itrack)).phi              () );
+            RT.ptError          ->push_back( (trackcollection->at(itrack)).ptError          () ); 
+            RT.etaError         ->push_back( (trackcollection->at(itrack)).etaError         () );
+            RT.phiError         ->push_back( (trackcollection->at(itrack)).phiError         () );
+            RT.dxy              ->push_back( (trackcollection->at(itrack)).dxy              () );
+            RT.dxyError         ->push_back( (trackcollection->at(itrack)).dxyError         () );
+            RT.dz               ->push_back( (trackcollection->at(itrack)).dz               () );
+            RT.dzError          ->push_back( (trackcollection->at(itrack)).dzError          () );
+            RT.charge           ->push_back( (trackcollection->at(itrack)).charge           () );
+            RT.chi2             ->push_back( (trackcollection->at(itrack)).chi2             () );
+            RT.ndof             ->push_back( (trackcollection->at(itrack)).ndof             () );
+            RT.vx               ->push_back( (trackcollection->at(itrack)).vx               () );
+            RT.vy               ->push_back( (trackcollection->at(itrack)).vy               () );
+            RT.vz               ->push_back( (trackcollection->at(itrack)).vz               () );
+            RT.numberOfValidHits->push_back( (trackcollection->at(itrack)).numberOfValidHits() );
+            RT.numberOfLostHits ->push_back( (trackcollection->at(itrack)).numberOfLostHits () );
+                 if ((trackcollection->at(itrack)).quality(reco::TrackBase::highPurity)) RT.quality->push_back( (reco::TrackBase::highPurity  ) );
+            else if ((trackcollection->at(itrack)).quality(reco::TrackBase::tight     )) RT.quality->push_back( (reco::TrackBase::tight       ) );
+            else if ((trackcollection->at(itrack)).quality(reco::TrackBase::loose     )) RT.quality->push_back( (reco::TrackBase::loose       ) );
+            else                                                                         RT.quality->push_back( (reco::TrackBase::undefQuality) );
         }
     }
 
@@ -484,20 +495,25 @@ void TreeProducer::beginJob()
     // RECONSTRUCTED TRACKS TODO: leafs
     if (StoreGeneralTracks)
     {
-        //tree->Branch("RecoTracks.energy"  , &RT.energy  ); 
-        tree->Branch("RecoTracks.pt"      , &RT.pt      ); 
-        tree->Branch("RecoTracks.eta"     , &RT.eta     ); 
-        tree->Branch("RecoTracks.phi"     , &RT.phi     ); 
-        tree->Branch("RecoTracks.ptError" , &RT.ptError ); 
-        tree->Branch("RecoTracks.etaError", &RT.etaError); 
-        tree->Branch("RecoTracks.phiError", &RT.phiError); 
-        tree->Branch("RecoTracks.dxy"     , &RT.dxy     );
-        tree->Branch("RecoTracks.dxyError", &RT.dxyError);
-        tree->Branch("RecoTracks.dz"      , &RT.dz      );
-        tree->Branch("RecoTracks.dzError" , &RT.dzError );
-        tree->Branch("RecoTracks.charge"  , &RT.charge  ); 
-        tree->Branch("RecoTracks.chi2"    , &RT.chi2    ); 
-        tree->Branch("RecoTracks.ndof"    , &RT.ndof    ); 
+        tree->Branch("RecoTracks.pt"               , &RT.pt               ); 
+        tree->Branch("RecoTracks.eta"              , &RT.eta              ); 
+        tree->Branch("RecoTracks.phi"              , &RT.phi              ); 
+        tree->Branch("RecoTracks.ptError"          , &RT.ptError          ); 
+        tree->Branch("RecoTracks.etaError"         , &RT.etaError         ); 
+        tree->Branch("RecoTracks.phiError"         , &RT.phiError         ); 
+        tree->Branch("RecoTracks.dxy"              , &RT.dxy              );
+        tree->Branch("RecoTracks.dxyError"         , &RT.dxyError         );
+        tree->Branch("RecoTracks.dz"               , &RT.dz               );
+        tree->Branch("RecoTracks.dzError"          , &RT.dzError          );
+        tree->Branch("RecoTracks.charge"           , &RT.charge           ); 
+        tree->Branch("RecoTracks.chi2"             , &RT.chi2             ); 
+        tree->Branch("RecoTracks.ndof"             , &RT.ndof             ); 
+        tree->Branch("RecoTracks.vx"               , &RT.vx               );
+        tree->Branch("RecoTracks.vy"               , &RT.vy               );
+        tree->Branch("RecoTracks.vz"               , &RT.vz               );
+        tree->Branch("RecoTracks.quality"          , &RT.quality          );
+        tree->Branch("RecoTracks.numberOfValidHits", &RT.numberOfValidHits);
+        tree->Branch("RecoTracks.numberOfLostHits" , &RT.numberOfLostHits );
     }
 
     // ECAL ENDCAPS REC HIT TODO: leafs

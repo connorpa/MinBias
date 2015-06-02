@@ -73,26 +73,34 @@ struct MyRecoVertices : public MyGenVertices
     {}
 };
 
-struct MyGenTracks
+struct MyTrackBase
 {
-    std::vector<Double_t> * energy,
-                          * pt ,
+    std::vector<Double_t> * pt ,
                           * eta,
                           * phi;
-    std::vector<Int_t> * charge,
-                       * status,
-                       * pdgId;
-    MyGenTracks ()
-        :   energy(0x0)
-        ,   pt    (0x0)
+    std::vector<Int_t> * charge;
+    MyTrackBase ()
+        :   pt    (0x0)
         ,   eta   (0x0)
         ,   phi   (0x0)
         ,   charge(0x0)
+    {}
+};
+
+struct MyGenTracks : public MyTrackBase
+{
+    std::vector<Double_t> * energy;
+    std::vector<Int_t> * status,
+                       * pdgId;
+    MyGenTracks ()
+        :   MyTrackBase()
+        ,   energy(0x0)
+        ,   status(0x0)
         ,   pdgId (0x0)
     {}
 };
 
-struct MyRecoTracks : public MyGenTracks
+struct MyRecoTracks : public MyTrackBase
 {
     std::vector<Double_t> * ptError ,
                           * etaError,
@@ -101,19 +109,31 @@ struct MyRecoTracks : public MyGenTracks
                           * dxyError,
                           * dz      ,
                           * dzError ,
-                          * chi2    ;
-    std::vector<Int_t> * ndof;
+                          * chi2    ,
+                          * ndof    ,
+                          * vx      ,
+                          * vy      ,
+                          * vz      ;
+    std::vector<Int_t> * quality          ,
+                       * numberOfValidHits,
+                       * numberOfLostHits ;
     MyRecoTracks ()
-        :   MyGenTracks()
-        ,   ptError (0x0)
-        ,   etaError(0x0)
-        ,   phiError(0x0)
-        ,   dxy     (0x0)
-        ,   dxyError(0x0)
-        ,   dz      (0x0)
-        ,   dzError (0x0)
-        ,   chi2    (0x0)
-        ,   ndof    (0x0)
+        :   MyTrackBase()
+        ,   ptError          (0x0)
+        ,   etaError         (0x0)
+        ,   phiError         (0x0)
+        ,   dxy              (0x0)
+        ,   dxyError         (0x0)
+        ,   dz               (0x0)
+        ,   dzError          (0x0)
+        ,   chi2             (0x0)
+        ,   ndof             (0x0)
+        ,   vx               (0x0)
+        ,   vy               (0x0)
+        ,   vz               (0x0)
+        ,   quality          (0x0)
+        ,   numberOfValidHits(0x0)
+        ,   numberOfLostHits (0x0)
     {}
 };
 
