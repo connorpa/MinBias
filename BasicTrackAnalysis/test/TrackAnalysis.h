@@ -73,20 +73,28 @@ class TrackAnalysis // TODO: handle the cases where only certain branches are pr
     TBranch * b_RecoTracks_dxyError;    //!
     TBranch * b_RecoTracks_dz;       //!
     TBranch * b_RecoTracks_dzError;    //!
-    TBranch * b_HFRecHitEE_energy;
-    TBranch * b_HFRecHitEB_energy;
-    TBranch * b_HFRecHitHBHE_energy;
-    TBranch * b_HFRecHitHO_energy;
-    TBranch * b_HFRecHitHF_energy;
-    TBranch * b_HFCaloTower_energy;   //!
-    TBranch * b_HFCaloTower_energyInHE;   //!
-    TBranch * b_HFCaloTower_energyInHB;   //!
-    TBranch * b_HFCaloTower_energyInHO;   //!
-    TBranch * b_HFCaloTower_energyInHF;   //!
-    TBranch * b_HFCaloTower_emEnergy;   //!
-    TBranch * b_HFCaloTower_hadEnergy;   //!
-    TBranch * b_HFCaloTower_eta;   //!
-    TBranch * b_HFCaloTower_phi;   //!
+    TBranch * b_RecoTracks_chi2; //!
+    TBranch * b_RecoTracks_ndof; //!
+    TBranch * b_RecoTracks_vx;   //!
+    TBranch * b_RecoTracks_vy;   //!
+    TBranch * b_RecoTracks_vz;   //!
+    TBranch * b_RecoTracks_quality ; //!
+    TBranch * b_RecoTracks_numberOfValidHits; //!
+    TBranch * b_RecoTracks_numberOfLostHits ; //!
+    TBranch * b_EERecHit_energy;     //!
+    TBranch * b_EBRecHit_energy; //!
+    TBranch * b_HBHERecHit_energy; //!
+    TBranch * b_HORecHit_energy; //!
+    TBranch * b_HFRecHit_energy; //!
+    TBranch * b_CaloTower_energy;   //!
+    TBranch * b_CaloTower_energyInHE;   //!
+    TBranch * b_CaloTower_energyInHB;   //!
+    TBranch * b_CaloTower_energyInHO;   //!
+    TBranch * b_CaloTower_energyInHF;   //!
+    TBranch * b_CaloTower_emEnergy;   //!
+    TBranch * b_CaloTower_hadEnergy;   //!
+    TBranch * b_CaloTower_eta;   //!
+    TBranch * b_CaloTower_phi;   //!
 
 public:
     TrackAnalysis(TTree * tree,
@@ -192,31 +200,39 @@ void TrackAnalysis::Init(TTree *tree)
     fChain->SetBranchAddress("RecoVertices.ndof"   , &RV.ndof   , &b_RecoVertices_ndof   );
     fChain->SetBranchAddress("RecoVertices.isFake" , &RV.isFake , &b_RecoVertices_isFake );
     fChain->SetBranchAddress("RecoVertices.isValid", &RV.isValid, &b_RecoVertices_isValid);
-    fChain->SetBranchAddress("RecoTracks.pt"      , &RT.pt      , &b_RecoTracks_pt      );
-    fChain->SetBranchAddress("RecoTracks.eta"     , &RT.eta     , &b_RecoTracks_eta     );
-    fChain->SetBranchAddress("RecoTracks.phi"     , &RT.phi     , &b_RecoTracks_phi     );
-    fChain->SetBranchAddress("RecoTracks.ptError" , &RT.ptError , &b_RecoTracks_ptError );
-    fChain->SetBranchAddress("RecoTracks.etaError", &RT.etaError, &b_RecoTracks_etaError);
-    fChain->SetBranchAddress("RecoTracks.phiError", &RT.phiError, &b_RecoTracks_phiError);
-    fChain->SetBranchAddress("RecoTracks.charge"  , &RT.charge  , &b_RecoTracks_charge  );
-    fChain->SetBranchAddress("RecoTracks.dxy"     , &RT.dxy     , &b_RecoTracks_dxy     ); 
-    fChain->SetBranchAddress("RecoTracks.dxyError", &RT.dxyError, &b_RecoTracks_dxyError);
-    fChain->SetBranchAddress("RecoTracks.dz"      , &RT.dz      , &b_RecoTracks_dz      );
-    fChain->SetBranchAddress("RecoTracks.dzError" , &RT.dzError , &b_RecoTracks_dzError );
-    fChain->SetBranchAddress("HFRecHitEE.energy"  , &RH_EE.energy  , &b_HFRecHitEE_energy);
-    fChain->SetBranchAddress("HFRecHitEB.energy"  , &RH_EB.energy  , &b_HFRecHitEB_energy);
-    fChain->SetBranchAddress("HFRecHitHBHE.energy", &RH_HBHE.energy, &b_HFRecHitHBHE_energy);
-    fChain->SetBranchAddress("HFRecHitHO.energy"  , &RH_HO.energy  , &b_HFRecHitHO_energy);
-    fChain->SetBranchAddress("HFRecHitHF.energy"  , &RH_HF.energy  , &b_HFRecHitHF_energy);
-    fChain->SetBranchAddress("HFCaloTower.energy"    , &CT.energy    , &b_HFCaloTower_energy    ); // TODO: automate the recognition of the branch present in the tree
-    fChain->SetBranchAddress("HFCaloTower.energyInHB", &CT.energyInHB, &b_HFCaloTower_energyInHB);
-    fChain->SetBranchAddress("HFCaloTower.energyInHE", &CT.energyInHE, &b_HFCaloTower_energyInHE);
-    fChain->SetBranchAddress("HFCaloTower.energyInHO", &CT.energyInHO, &b_HFCaloTower_energyInHO);
-    fChain->SetBranchAddress("HFCaloTower.energyInHF", &CT.energyInHF, &b_HFCaloTower_energyInHF);
-    fChain->SetBranchAddress("HFCaloTower.emEnergy"  , &CT.emEnergy  , &b_HFCaloTower_emEnergy  );
-    fChain->SetBranchAddress("HFCaloTower.hadEnergy" , &CT.hadEnergy , &b_HFCaloTower_hadEnergy );
-    fChain->SetBranchAddress("HFCaloTower.eta"       , &CT.eta       , &b_HFCaloTower_eta       );
-    fChain->SetBranchAddress("HFCaloTower.phi"       , &CT.phi       , &b_HFCaloTower_phi       );
+    fChain->SetBranchAddress("RecoTracks.pt"               , &RT.pt               , &b_RecoTracks_pt               );
+    fChain->SetBranchAddress("RecoTracks.eta"              , &RT.eta              , &b_RecoTracks_eta              );
+    fChain->SetBranchAddress("RecoTracks.phi"              , &RT.phi              , &b_RecoTracks_phi              );
+    fChain->SetBranchAddress("RecoTracks.ptError"          , &RT.ptError          , &b_RecoTracks_ptError          );
+    fChain->SetBranchAddress("RecoTracks.etaError"         , &RT.etaError         , &b_RecoTracks_etaError         );
+    fChain->SetBranchAddress("RecoTracks.phiError"         , &RT.phiError         , &b_RecoTracks_phiError         );
+    fChain->SetBranchAddress("RecoTracks.charge"           , &RT.charge           , &b_RecoTracks_charge           );
+    fChain->SetBranchAddress("RecoTracks.dxy"              , &RT.dxy              , &b_RecoTracks_dxy              ); 
+    fChain->SetBranchAddress("RecoTracks.dxyError"         , &RT.dxyError         , &b_RecoTracks_dxyError         );
+    fChain->SetBranchAddress("RecoTracks.dz"               , &RT.dz               , &b_RecoTracks_dz               );
+    fChain->SetBranchAddress("RecoTracks.dzError"          , &RT.dzError          , &b_RecoTracks_dzError          );
+    fChain->SetBranchAddress("RecoTracks.chi2"             , &RT.chi2             , &b_RecoTracks_chi2             );
+    fChain->SetBranchAddress("RecoTracks.ndof"             , &RT.ndof             , &b_RecoTracks_ndof             );
+    fChain->SetBranchAddress("RecoTracks.vx"               , &RT.vx               , &b_RecoTracks_vx               );
+    fChain->SetBranchAddress("RecoTracks.vy"               , &RT.vy               , &b_RecoTracks_vy               );
+    fChain->SetBranchAddress("RecoTracks.vz"               , &RT.vz               , &b_RecoTracks_vz               );
+    fChain->SetBranchAddress("RecoTracks.quality"          , &RT.quality          , &b_RecoTracks_quality          );
+    fChain->SetBranchAddress("RecoTracks.numberOfValidHits", &RT.numberOfValidHits, &b_RecoTracks_numberOfValidHits);
+    fChain->SetBranchAddress("RecoTracks.numberOfLostHits" , &RT.numberOfLostHits , &b_RecoTracks_numberOfLostHits );
+    fChain->SetBranchAddress("EERecHit.energy"  , &RH_EE.energy  , &b_EERecHit_energy);
+    fChain->SetBranchAddress("EBRecHit.energy"  , &RH_EB.energy  , &b_EBRecHit_energy);
+    fChain->SetBranchAddress("HBHERecHit.energy", &RH_HBHE.energy, &b_HBHERecHit_energy);
+    fChain->SetBranchAddress("HORecHit.energy"  , &RH_HO.energy  , &b_HORecHit_energy);
+    fChain->SetBranchAddress("HFRecHit.energy"  , &RH_HF.energy  , &b_HFRecHit_energy);
+    fChain->SetBranchAddress("CaloTower.energy"    , &CT.energy    , &b_CaloTower_energy    ); // TODO: automate the recognition of the branch present in the tree
+    fChain->SetBranchAddress("CaloTower.energyInHB", &CT.energyInHB, &b_CaloTower_energyInHB);
+    fChain->SetBranchAddress("CaloTower.energyInHE", &CT.energyInHE, &b_CaloTower_energyInHE);
+    fChain->SetBranchAddress("CaloTower.energyInHO", &CT.energyInHO, &b_CaloTower_energyInHO);
+    fChain->SetBranchAddress("CaloTower.energyInHF", &CT.energyInHF, &b_CaloTower_energyInHF);
+    fChain->SetBranchAddress("CaloTower.emEnergy"  , &CT.emEnergy  , &b_CaloTower_emEnergy  );
+    fChain->SetBranchAddress("CaloTower.hadEnergy" , &CT.hadEnergy , &b_CaloTower_hadEnergy );
+    fChain->SetBranchAddress("CaloTower.eta"       , &CT.eta       , &b_CaloTower_eta       );
+    fChain->SetBranchAddress("CaloTower.phi"       , &CT.phi       , &b_CaloTower_phi       );
 
     Notify();
 }

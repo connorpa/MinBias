@@ -539,15 +539,15 @@ void TreeProducer::beginJob()
     // CALO TOWER TODO: leafs
     if (StoreCaloTower)
     {
-        tree->Branch("HFCaloTower.energy"    , &CT.energy    );
-        tree->Branch("HFCaloTower.energyInHE", &CT.energyInHE);
-        tree->Branch("HFCaloTower.energyInHB", &CT.energyInHB);
-        tree->Branch("HFCaloTower.energyInHO", &CT.energyInHO);
-        tree->Branch("HFCaloTower.energyInHF", &CT.energyInHF);
-        tree->Branch("HFCaloTower.emEnergy"  , &CT.emEnergy  );
-        tree->Branch("HFCaloTower.hadEnergy" , &CT.hadEnergy );
-        tree->Branch("HFCaloTower.eta"       , &CT.eta       );
-        tree->Branch("HFCaloTower.phi"       , &CT.phi       );
+        tree->Branch("CaloTower.energy"    , &CT.energy    );
+        tree->Branch("CaloTower.energyInHE", &CT.energyInHE);
+        tree->Branch("CaloTower.energyInHB", &CT.energyInHB);
+        tree->Branch("CaloTower.energyInHO", &CT.energyInHO);
+        tree->Branch("CaloTower.energyInHF", &CT.energyInHF);
+        tree->Branch("CaloTower.emEnergy"  , &CT.emEnergy  );
+        tree->Branch("CaloTower.hadEnergy" , &CT.hadEnergy );
+        tree->Branch("CaloTower.eta"       , &CT.eta       );
+        tree->Branch("CaloTower.phi"       , &CT.phi       );
     }
 }
 
