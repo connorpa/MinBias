@@ -48,10 +48,13 @@ class TrackAnalysis // TODO: handle the cases where only certain branches are pr
     TBranch * b_GenVertices_x;   //!
     TBranch * b_GenVertices_y;   //!
     TBranch * b_GenVertices_z;   //!
+    TBranch * b_GenTracks_energy;   //!
     TBranch * b_GenTracks_pt;   //!
     TBranch * b_GenTracks_eta;   //!
     TBranch * b_GenTracks_phi;   //!
     TBranch * b_GenTracks_charge;   //!
+    TBranch * b_GenTracks_status;   //!
+    TBranch * b_GenTracks_pdgId;   //!
     TBranch * b_RecoVertices_x;   //!
     TBranch * b_RecoVertices_y;   //!
     TBranch * b_RecoVertices_z;   //!
@@ -185,10 +188,13 @@ void TrackAnalysis::Init(TTree *tree)
         fChain->SetBranchAddress("GenVertices.x", &GV.x, &b_GenVertices_x);
         fChain->SetBranchAddress("GenVertices.y", &GV.y, &b_GenVertices_y);
         fChain->SetBranchAddress("GenVertices.z", &GV.z, &b_GenVertices_z);
+        fChain->SetBranchAddress("GenTracks.energy", &GT.energy, &b_GenTracks_energy);
         fChain->SetBranchAddress("GenTracks.pt"    , &GT.pt    , &b_GenTracks_pt    );
         fChain->SetBranchAddress("GenTracks.eta"   , &GT.eta   , &b_GenTracks_eta   );
         fChain->SetBranchAddress("GenTracks.phi"   , &GT.phi   , &b_GenTracks_phi   );
         fChain->SetBranchAddress("GenTracks.charge", &GT.charge, &b_GenTracks_charge);
+        fChain->SetBranchAddress("GenTracks.pdgId" , &GT.pdgId , &b_GenTracks_pdgId );
+        fChain->SetBranchAddress("GenTracks.status", &GT.status, &b_GenTracks_status);
     }
     fChain->SetBranchAddress("RecoVertices.x"      , &RV.x      , &b_RecoVertices_x      );
     fChain->SetBranchAddress("RecoVertices.y"      , &RV.y      , &b_RecoVertices_y      );

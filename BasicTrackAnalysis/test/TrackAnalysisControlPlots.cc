@@ -17,37 +17,14 @@
 
 void TrackAnalysis::Loop(Long64_t maxentries)
 {
-    //   In a ROOT session, you can do:
-    //      root> .L TrackAnalysis.C
-    //      root> TrackAnalysis t
-    //      root> t.GetEntry(12); // Fill t data members with entry number 12
-    //      root> t.Show();       // Show values of entry 12
-    //      root> t.Show(16);     // Read and show values of entry 16
-    //      root> t.Loop();       // Loop on all entries
-    //
-
-    //     This is the loop skeleton where:
-    //    jentry is the global entry number in the chain
-    //    ientry is the entry number in the current Tree
-    //  Note that the argument to GetEntry must be:
-    //    jentry for TChain::GetEntry
-    //    ientry for TTree::GetEntry and TBranch::GetEntry
-    //
-    //       To read only selected branches, Insert statements like:
-    // METHOD1:
-    //    fChain->SetBranchStatus("*",0);  // disable all branches
-    //    fChain->SetBranchStatus("branchname",1);  // activate branchname
-    // METHOD2: replace line
-    //    fChain->GetEntry(jentry);       //read all branches
-    //by  b_branchname->GetEntry(ientry); //read only this branch
     if (fChain == 0x0) return;
 
     /********************** CUTOFFS & CONSTANTS ***************************/
 
     const double minpt  = 0.1, // GeV
-                 maxtracketa = 2.4; // no unit
-                 //minRHeta = 3,
-                 //maxRHeta = 5;
+                 maxtracketa = 2.4, // no unit
+                 minRHeta = 3,
+                 maxRHeta = 5;
     const unsigned short int NETABIN = 4, // 4 eta bins of width 0.6 
                              NKIN = 4, // KINematics, plus multiplicity
                              NDIR = 3; // DIRections
@@ -128,26 +105,26 @@ void TrackAnalysis::Loop(Long64_t maxentries)
             hist1D[name]->SetXTitle(proto_tracks[0]->GetXaxis()->GetTitle());
             hist1D[name]->SetYTitle(proto_tracks[0]->GetYaxis()->GetTitle());
         }
+        // energy deposit in the forward calorimeter
+        hist1D["forward_energy"] = new TH1D ("forward_energy", "forward energy deposit;E/GeV;#entries", 100, 0, 100);
+        // this macro is used to define 2d histogram using the 1d histogram corresponding to the axes
+#define DEFINE2DHIST(XNAME, YNAME, TITLE) \
+        hist2D[XNAME "_VS_" YNAME] = new TH2D (XNAME "_VS_" YNAME, TITLE, \
+                hist1D[XNAME]->GetNbinsX(), hist1D[XNAME]->GetXaxis()->GetXmin(), hist1D[XNAME]->GetYaxis()->GetXmax(), \
+                hist1D[YNAME]->GetNbinsX(), hist1D[YNAME]->GetXaxis()->GetXmin(), hist1D[YNAME]->GetYaxis()->GetXmax())
+        DEFINE2DHIST("forward_energy", "GT_pt", "forward energy deposit VS leading generated transverse momentum;E/GeV;p_T/GeV;#entries");
+        DEFINE2DHIST("forward_energy", "GT_M" , "forward energy deposit VS generated multiplicity               ;E/GeV;M      ;#entries");
     }
-    // energy deposit in the forward calorimeter
-    //hist1D["rechit_energy"] = new TH1D ("rechit_energy", "rechit energy deposit;E/GeV;#entries", 100, 0, 100);
-
-    // this macro is used to define 2d histogram using the 1d histogram corresponding to the axes
-//#define DEFINE2DHIST(XNAME, YNAME, TITLE) \
-//    hist2D[XNAME "_VS_" YNAME] = new TH2D (XNAME "_VS_" YNAME, TITLE, \
-//                                            hist1D[XNAME]->GetNbinsX(), hist1D[XNAME]->GetXaxis()->GetXmin(), hist1D[XNAME]->GetXaxis()->GetXmax(), \
-//                                            hist1D[YNAME]->GetNbinsX(), hist1D[YNAME]->GetXaxis()->GetXmin(), hist1D[YNAME]->GetXaxis()->GetXmax())
-//    DEFINE2DHIST("forward_energy", "GT_M" , "forward energy deposit VS generated multiplicity       ;E/GeV;M      ;#entries");
-//    DEFINE2DHIST("forward_energy", "GT_pt", "forward energy deposit VS generated transverse momentum;E/GeV;p_T/GeV;#entries");
-//    DEFINE2DHIST("rechit_energy", "RT_M" , "rechit energy deposit VS reconstructed multiplicity       ;E/GeV;M      ;#entries");
-//    DEFINE2DHIST("rechit_energy", "RT_pt", "rechit energy deposit VS reconstructed transverse momentum;E/GeV;p_T/GeV;#entries");
-//#undef DEFINE2DHIST
+    hist1D["rechit_energy" ] = new TH1D ("rechit_energy" ,  "rechit energy deposit;E/GeV;#entries", 100, 0, 100);
+    DEFINE2DHIST("rechit_energy", "RT_pt", "rechit energy deposit VS leading reconstructed transverse momentum;E/GeV;p_T/GeV;#entries");
+    DEFINE2DHIST("rechit_energy", "RT_M" , "rechit energy deposit VS reconstructed multiplicity             ;E/GeV;M      ;#entries");
+#undef DEFINE2DHIST
 
     /******************* RUNNING OVER THE TREE ***********************/
 
     // counters
     const Long64_t nentries = (maxentries <= 0) ? fChain->GetEntriesFast() : min(fChain->GetEntriesFast(),maxentries);
-    unsigned int progress = 0;  // counter  to see the progress of the loop
+    unsigned short int progress = 0;  // counter  to see the progress of the loop
     Long64_t nbytes = 0, nb = 0; // dunno the use of this... (given by TTree::MakeClass())
 
     cout << "Running over " << nentries << " entries..." << endl;
@@ -179,31 +156,33 @@ void TrackAnalysis::Loop(Long64_t maxentries)
 
             // test GT
             unsigned int ngentracks = 0; // #tracks passing the cutoffs
-            //double genRHenergy = 0.,
-            //       leading_GT_pt = 0.;
+            double genRHenergy = 0.,
+                   leading_GT_pt = 0.;
             for (unsigned int itrack = 0 ; itrack < GT.pt->size() ; itrack++)
             {
+                if (GT.status->at(itrack) != 1) continue;
                 // basic plots
                 if (       GT.pt ->at(itrack)  > minpt   
-                    && abs(GT.eta->at(itrack)) < maxtracketa) 
+                    && abs(GT.eta->at(itrack)) < maxtracketa)
                 {
                     hist1D["GT_pt" ]->Fill(GT.pt ->at(itrack));
                     hist1D["GT_eta"]->Fill(GT.eta->at(itrack));
                     hist1D["GT_phi"]->Fill(GT.phi->at(itrack));
                     ngentracks++;
-                    //// rechit vs leading pt
-                    //leading_GT_pt = max(leading_GT_pt, GT.pt->at(itrack));
+                    // mimiced rechit vs leading pt
+                    leading_GT_pt = max(leading_GT_pt, GT.pt->at(itrack));
                     // pt in eta bins
                     hist1D[TString::Format("GT_pt_%d", (int) abs(GT.eta->at(itrack)/ETABINWIDTH))]->Fill(GT.pt->at(itrack)); 
                 }
-                //if (   fabs(RT.eta->at(itrack)) > minRHeta
-                //    && fabs(RT.eta->at(itrack)) < maxRHeta)
-                //    genRHenergy += RT.energy->at(itrack);
+                if (   fabs(GT.eta->at(itrack)) > minRHeta
+                    && fabs(GT.eta->at(itrack)) < maxRHeta)
+                    genRHenergy += GT.energy->at(itrack);
             }
             hist1D["GT_M"]->Fill(ngentracks);
-            //// mimic rechit
-            //hist2D["forward_energy_VS_GT_M"]->Fill(genRHenergy, ngentracks);
-            //hist2D["forward_energy_VS_leading_GT_pt"]->Fill(genRHenergy, leading_GT_pt);
+            // mimic rechit
+            hist1D["forward_energy"]->Fill(genRHenergy);
+            hist2D["forward_energy_VS_GT_M"]->Fill(genRHenergy, ngentracks);
+            hist2D["forward_energy_VS_GT_pt"]->Fill(genRHenergy, leading_GT_pt);
         }
 
         // test RV
@@ -217,8 +196,8 @@ void TrackAnalysis::Loop(Long64_t maxentries)
 
         // test RT
         unsigned int nrectracks = 0; // #tracks passing the cutoffs
-        //double leading_RT_pt = 0.,
-        //       recHFenergy = 0.; // total energy deposit in the forward calorimeter
+        double leading_RT_pt = 0.,
+               recHFenergy = 0.; // total energy deposit in the forward calorimeter
         for (unsigned int itrack = 0 ; itrack < RT.pt->size() ; itrack++)
         {
             // basic plots
@@ -229,17 +208,18 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                 hist1D["RT_eta"]->Fill(RT.eta->at(itrack));
                 hist1D["RT_phi"]->Fill(RT.phi->at(itrack));
                 nrectracks++;
-                //// rechit vs leading pt
-                //leading_RT_pt = max(leading_RT_pt, RT.pt->at(itrack));
+                // rechit vs leading pt
+                leading_RT_pt = max(leading_RT_pt, RT.pt->at(itrack));
                 // pt in eta bins
                 hist1D[TString::Format("RT_pt_%d", (int) abs(RT.eta->at(itrack)/ETABINWIDTH))]->Fill(RT.pt->at(itrack)); 
             }
         }
         hist1D["RT_M"]->Fill(nrectracks);
-        //for (unsigned short int irechit = 0 ; irechit < RH.energy->size() ; irechit++)
-        //    recHFenergy += RH.energy->at(irechit) ;
-        //hist2D["rechit_energy_VS_RT_M"]->Fill(recHFenergy, nrectracks);
-        //hist2D["rechit_energy_VS_leading_RT_pt"]->Fill(recHFenergy, leading_RT_pt);
+        for (unsigned int irechit = 0 ; irechit < RH_HF.energy->size() ; irechit++)
+            recHFenergy += RH_HF.energy->at(irechit) ;
+        hist1D["rechit_energy"]->Fill(recHFenergy);
+        hist2D["rechit_energy_VS_RT_M"]->Fill(recHFenergy, nrectracks);
+        hist2D["rechit_energy_VS_RT_pt"]->Fill(recHFenergy, leading_RT_pt);
     }
     cout << "Loop: 100%!!" << endl;
 
