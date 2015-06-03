@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <TApplication.h>
 #include <TH2.h>
+#include <TProfile.h>
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <TMath.h>
@@ -26,8 +27,8 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                  minRHeta = 3,
                  maxRHeta = 5;
     const unsigned short int NETABIN = 4, // 4 eta bins of width 0.6 
-                             NKIN = 4, // KINematics, plus multiplicity
-                             NDIR = 4; // DIRections
+                             NKIN = 11, 
+                             NDIR = 4; 
     const double ETABINWIDTH = maxtracketa/((double) NETABIN);
 
     /************************* BOOKING HISTOGRAMS *****************************/
@@ -41,11 +42,18 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     const TH1D * proto_tracks[NKIN] = { new const TH1D ("pt" , "transverse momentum;p_T/GeV;#entries",   50,     0,   5),
                                         new const TH1D ("eta", "pseudorapidity     ;#eta   ;#entries",   50,  -2.5,  2.5),
                                         new const TH1D ("phi", "azimuthal angle    ;#phi   ;#entries",   20,   -PI,   PI),
-                                        new const TH1D ("M"  , "multiplicity       ;M      ;#enitres",  300,     0,  300)},
+                                        new const TH1D ("M"  , "multiplicity       ;M      ;#enitres",  300,     0,  300),
+                                        new const TH1D ("dxy","d_{xy};d_{xy};Fraction of tracks",200,-10.0,10.0),
+                                        new const TH1D ("errxy","sigma_{xy};#sigma_{xy};Fraction of tracks",100,0.0,1.0),
+                                        new const TH1D ("dxy_errxy","d_{xy}/#sigma_{xy};d_{xy}/#sigma_{xy};Fraction of tracks",1000,0.0,200.0),
+                                        new const TH1D ("dz","d_{z};d_{z};Fraction of tracks",1600,-80.0,80.0),
+                                        new const TH1D ("errz","sigma_{z};#sigma_{z};Fraction of tracks",100,0.0,10.0),
+                                        new const TH1D ("pt_errpt","sigma_{pt}/p_{t};#sigma_{pt}/p_{t};Fraction of tracks",100,0.0,0.1),
+                                        new const TH1D ("dz_errz","d_{z}/#sigma_{z};d_{z}/#sigma_{z};Fraction of tracks",1000,0.0,200.0)},
                * proto_vertices[NDIR]   = { new const TH1D ("x", "x-position;x/mm;#entries", 100,  0.2, 0.4),
                                             new const TH1D ("y", "y-position;y/mm;#entries", 100,  0.3, 0.5),
                                             new const TH1D ("z", "z-position;z/mm;#entries", 100,  -20, 20 ),
-                                            new const TH1D ("M", "multiplicity;multiplicity;nevents", 20, 0, 20)};
+                                            new const TH1D ("Nvertices", "Number of vertices;Number of vertices;nevents", 50, 0, 50)};
 
     map<TString, TH1D *> hist1D; // i.e. map["string"] = histogram (use "iterators" to run over a map--see below)
     map<TString, TH2D *> hist2D;
@@ -154,7 +162,7 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                 hist1D["GV_y"]->Fill(GV.y->at(ivertex));
                 hist1D["GV_z"]->Fill(GV.z->at(ivertex));
             }
-            hist1D["GV_M"]->Fill(GV.x->size());
+            hist1D["GV_Nvertices"]->Fill(GV.x->size());
 
             // test GT
             unsigned int ngentracks = 0; // #tracks passing the cutoffs
@@ -178,7 +186,9 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                 }
                 if (   fabs(GT.eta->at(itrack)) > minRHeta
                     && fabs(GT.eta->at(itrack)) < maxRHeta)
+                {
                     genRHenergy += GT.energy->at(itrack);
+                }
             }
             hist1D["GT_M"]->Fill(ngentracks);
             // mimic rechit
@@ -187,7 +197,6 @@ void TrackAnalysis::Loop(Long64_t maxentries)
             hist2D["forward_energy_VS_GT_pt"]->Fill(genRHenergy, leading_GT_pt);
         }
 
-        // test RV
         for (unsigned int ivertex = 0 ; ivertex < RV.x->size() ; ivertex++)
         {
             // basic plots
@@ -195,22 +204,37 @@ void TrackAnalysis::Loop(Long64_t maxentries)
             hist1D["RV_y"]->Fill(RV.y->at(ivertex));
             hist1D["RV_z"]->Fill(RV.z->at(ivertex));
         }
-        hist1D["RV_M"]->Fill(RV.x->size());
-
+        hist1D["RV_Nvertices"]->Fill(RV.x->size());
         // test RT
+        // looping over the reconstructed tracks and counting how many pass the cuts
         unsigned int nrectracks = 0; // #tracks passing the cutoffs
+        for (unsigned int itrack = 0 ; itrack < RT.pt->size() ; itrack++)
+        {
+            if (        RT.pt ->at(itrack)  > minpt      
+                && fabs(RT.eta->at(itrack)) < maxtracketa)
+            {
+                nrectracks++;
+            }
+        }
         double leading_RT_pt = 0.,
                recHFenergy = 0.; // total energy deposit in the forward calorimeter
         for (unsigned int itrack = 0 ; itrack < RT.pt->size() ; itrack++)
         {
             // basic plots
             if (        RT.pt ->at(itrack)  > minpt      
-                && fabs(RT.eta->at(itrack)) < maxtracketa)
+                && fabs(RT.eta->at(itrack)) < maxtracketa
+                && nrectracks > 0)
             {
                 hist1D["RT_pt" ]->Fill(RT.pt ->at(itrack));
                 hist1D["RT_eta"]->Fill(RT.eta->at(itrack));
                 hist1D["RT_phi"]->Fill(RT.phi->at(itrack));
-                nrectracks++;
+                hist1D["RT_dxy_errxy"]->Fill(fabs(RT.dxy->at(itrack))/(RT.dxyError->at(itrack))); 
+                hist1D["RT_dxy"]->Fill(RT.dxy->at(itrack)); 
+                hist1D["RT_errxy"]->Fill(RT.dxyError->at(itrack)); 
+                hist1D["RT_dz_errz"]->Fill(fabs(RT.dz->at(itrack))/(RT.dzError->at(itrack))); 
+                hist1D["RT_dz"]->Fill(RT.dz->at(itrack)); 
+                hist1D["RT_errz"]->Fill(RT.dzError->at(itrack)); 
+                hist1D["RT_pt_errpt"]->Fill((RT.ptError->at(itrack))/RT.pt->at(itrack)); 
                 // rechit vs leading pt
                 leading_RT_pt = max(leading_RT_pt, RT.pt->at(itrack));
                 // pt in eta bins
@@ -252,6 +276,40 @@ void TrackAnalysis::Loop(Long64_t maxentries)
             hist1D[name]->Divide(hist1D[TString::Format("GT_pt_%d",ieta)]);   // denominator = GEN 
         }
     }
+
+    /*************** NORMALIZATION OF HISTOGRAMS *****************************/
+    double totaltracks = hist1D["RT_M"]->Integral();
+    //Number of tracks
+    hist1D["RT_dxy_errxy"] -> Scale(1.0/((double)totaltracks));
+    hist1D["RT_dxy"]       -> Scale(1.0/((double)totaltracks));
+    hist1D["RT_errxy"]     -> Scale(1.0/((double)totaltracks));
+    hist1D["RT_dz_errz"]   -> Scale(1.0/((double)totaltracks));
+    hist1D["RT_dz"]        -> Scale(1.0/((double)totaltracks));
+    hist1D["RT_errz"]      -> Scale(1.0/((double)totaltracks));
+    hist1D["RT_pt_errpt"]  -> Scale(1.0/((double)totaltracks));
+    
+    //Number of events: nentries
+    hist1D["RT_eta"] -> Scale(1.0/((double)nentries));  
+    hist1D["RT_eta"] -> Scale(1.0/0.1);
+    hist1D["RT_pt"]  -> Scale(1.0/((double)nentries));  
+    hist1D["RT_pt"]  -> Scale(1.0/0.1);
+    //hist1D["RT_M"]   -> Scale(1.0/((double)nentries));  
+    hist1D["RT_phi"] -> Scale(1.0/((double)nentries));
+    hist1D["RT_phi"] -> Scale(1.0/(PI/10.0));
+
+    //GT
+    hist1D["GT_dxy_errxy"] -> Scale(1.0/((double)totaltracks));
+    hist1D["GT_dz_errz"]   -> Scale(1.0/((double)totaltracks));
+    hist1D["GT_pt_errpt"]  -> Scale(1.0/((double)totaltracks));
+    
+    //Number of events: nentries
+    hist1D["GT_eta"] -> Scale(1.0/((double)nentries));  
+    hist1D["GT_eta"] -> Scale(1.0/0.1);
+    hist1D["GT_pt"]  -> Scale(1.0/((double)nentries));  
+    hist1D["GT_pt"]  -> Scale(1.0/0.1);
+    //hist1D["GT_M"]   -> Scale(1.0/((double)nentries));  
+    hist1D["GT_phi"] -> Scale(1.0/((double)nentries));
+    hist1D["GT_phi"] -> Scale(1.0/(PI/10.0));
 
     /************************* SAVING *******************************/
 
