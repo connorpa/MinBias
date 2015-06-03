@@ -4,20 +4,15 @@ process = cms.Process("TreeProducer")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100000) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-         "file:/nfs/dust/cms/user/connorpa/dndeta_analysis_samples/MinBias_TuneCUETP8M1_13TeV_pythia8_1.root"
-        ,"file:/nfs/dust/cms/user/connorpa/dndeta_analysis_samples/MinBias_TuneCUETP8M1_13TeV_pythia8_2.root"
-       #,"file:/nfs/dust/cms/user/connorpa/dndeta_analysis_samples/MinBias_TuneCUETP8M1_13TeV_pythia8_3.root" # TODO: corrupted... ask Benoit...
-       #,"file:/nfs/dust/cms/user/connorpa/dndeta_analysis_samples/MinBias_TuneCUETP8M1_13TeV_pythia8_4.root"
-       #,"file:/nfs/dust/cms/user/connorpa/dndeta_analysis_samples/MinBias_TuneCUETP8M1_13TeV_pythia8_5.root"
-       #,"file:/nfs/dust/cms/user/connorpa/dndeta_analysis_samples/MinBias_TuneCUETP8M1_13TeV_pythia8_6.root"
+        'root://xrootd-cms.infn.it//store/express/Run2015A/ExpressPhysics/FEVT/Express-v1/000/246/908/00000/CE86B688-D509-E511-8C80-02163E014177.root'
     )
 )
 process.TFileService = cms.Service("TFileService",
-        fileName = cms.string("/afs/desy.de/user/c/connorpa/CMSSW/CMSSW_7_4_0/src/MinBias/BasicTrackAnalysis/data/bonsai_MC_MinBias_TuneCUETP8M1_13TeV_pythia8.root")
+        fileName = cms.string("/afs/desy.de/user/c/connorpa/CMSSW/CMSSW_7_4_0/src/MinBias/BasicTrackAnalysis/data/bonsai_data_Ferenc_random_file.root")
 )
 
 # TODO: adapt the input tags according to the content of the input files
@@ -32,7 +27,7 @@ process.minbiasdata = cms.EDAnalyzer('TreeProducer'
     , StoreHORecHit        = cms.bool(True ) , HORecHit        = cms.InputTag("horeco"                , ""             , "RECO")
     , StoreHFRecHit        = cms.bool(True ) , HFRecHit        = cms.InputTag("hfreco"                , ""             , "RECO")
     , StoreCaloTower       = cms.bool(True ) , CaloTower       = cms.InputTag("towerMaker"            , ""             , "RECO")
-    , StoreGenParticles    = cms.bool(True ) , GenParticles    = cms.InputTag("genParticles"          , ""             , "HLT" )
+    , StoreGenParticles    = cms.bool(False) , GenParticles    = cms.InputTag("genParticles"          , ""             , "HLT" )
 )
 
 

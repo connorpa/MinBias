@@ -27,7 +27,7 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                  maxRHeta = 5;
     const unsigned short int NETABIN = 4, // 4 eta bins of width 0.6 
                              NKIN = 4, // KINematics, plus multiplicity
-                             NDIR = 3; // DIRections
+                             NDIR = 4; // DIRections
     const double ETABINWIDTH = maxtracketa/((double) NETABIN);
 
     /************************* BOOKING HISTOGRAMS *****************************/
@@ -43,8 +43,9 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                                         new const TH1D ("phi", "azimuthal angle    ;#phi   ;#entries",   20,   -PI,   PI),
                                         new const TH1D ("M"  , "multiplicity       ;M      ;#enitres",  300,     0,  300)},
                * proto_vertices[NDIR]   = { new const TH1D ("x", "x-position;x/mm;#entries", 100,  0.2, 0.4),
-                                            new const TH1D ("y", "y-position;x/mm;#entries", 100,  0.3, 0.5),
-                                            new const TH1D ("z", "z-position;x/mm;#entries", 100,  -20, 20) };
+                                            new const TH1D ("y", "y-position;y/mm;#entries", 100,  0.3, 0.5),
+                                            new const TH1D ("z", "z-position;z/mm;#entries", 100,  -20, 20 ),
+                                            new const TH1D ("M", "multiplicity;multiplicity;nevents", 20, 0, 20)};
 
     map<TString, TH1D *> hist1D; // i.e. map["string"] = histogram (use "iterators" to run over a map--see below)
     map<TString, TH2D *> hist2D;
@@ -153,6 +154,7 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                 hist1D["GV_y"]->Fill(GV.y->at(ivertex));
                 hist1D["GV_z"]->Fill(GV.z->at(ivertex));
             }
+            hist1D["GV_M"]->Fill(GV.x->size());
 
             // test GT
             unsigned int ngentracks = 0; // #tracks passing the cutoffs
@@ -193,6 +195,7 @@ void TrackAnalysis::Loop(Long64_t maxentries)
             hist1D["RV_y"]->Fill(RV.y->at(ivertex));
             hist1D["RV_z"]->Fill(RV.z->at(ivertex));
         }
+        hist1D["RV_M"]->Fill(RV.x->size());
 
         // test RT
         unsigned int nrectracks = 0; // #tracks passing the cutoffs
