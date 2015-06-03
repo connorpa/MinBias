@@ -685,6 +685,7 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     TString outputfilename = TString::Format("_" __FILE__ "_pt_gt_%f_eta_st_%f", minpt, maxtracketa); // 1) it should include the phase space
     outputfilename.ReplaceAll(".", "_"); // replace . by _ in the given values of the phase space
     outputfilename = path_to_tree + outputfilename; // it should specify the name of the input file
+    outputfilename.ReplaceAll("bonsai", "plots"); // but without the .root that would appear in the middle...
     outputfilename.ReplaceAll(".root", ""); // but without the .root that would appear in the middle...
     outputfilename += ".root"; // and add .root at the end of the filename
     cout << "Saving histograms into " << outputfilename << endl;
