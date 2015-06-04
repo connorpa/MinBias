@@ -6,12 +6,7 @@
 /**************************************************************************************/
 #define TrackAnalysis_cxx
 #include "TrackAnalysis.h"
-#include <cstdlib>
-#include <TApplication.h>
 #include <TH2.h>
-#include <TProfile.h>
-#include <TStyle.h>
-#include <TCanvas.h>
 #include <TMath.h>
 
 #define PI TMath::Pi()

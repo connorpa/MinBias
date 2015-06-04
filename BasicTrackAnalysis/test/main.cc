@@ -1,3 +1,6 @@
+#include <cstdlib>
+#include <TApplication.h>
+
 int main (int argc, char * argv[])
 {
     // declaring TApplication (needed to use the full power of Root as a library)

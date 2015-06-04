@@ -6,6 +6,7 @@
 /**************************************************************************************/
 #define TrackAnalysis_cxx
 #include "TrackAnalysis.h"
+#include <TProfile.h>
 #include <TH2.h>
 #include <TMath.h>
 
@@ -31,34 +32,28 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     // dimensions and size between similar quantities
     // TODO: adapt proto histograms upon purpose
     // Remember: TH1D * h = new TH1D (name, title, nbins, xlow, xup);
-    const unsigned short int NKIN = 4, // KINematics, plus multiplicity
-                             NDIR = 3; // DIRections
-    const TH1D * proto_tracks[NKIN] = { new const TH1D ("pt" , "transverse momentum;p_T/GeV;#entries",   50,     0,   5),
-                                        new const TH1D ("eta", "pseudorapidity     ;#eta   ;#entries",   50,  -2.5,  2.5),
-                                        new const TH1D ("phi", "azimuthal angle    ;#phi   ;#entries",   20,   -PI,   PI),
-                                        new const TH1D ("M"  , "multiplicity       ;M      ;#enitres",  300,     0,  300)},
-               * proto_vertices[NDIR]   = { new const TH1D ("x", "x-position;x/mm;#entries", 100,  0.2, 0.4),
-                                            new const TH1D ("y", "y-position;x/mm;#entries", 100,  0.3, 0.5),
-                                            new const TH1D ("z", "z-position;x/mm;#entries", 100,  -20, 20) };
+    //const unsigned short int NKIN = 4, // KINematics, plus multiplicity
+    //                         NDIR = 3; // DIRections
 
-    // The next variables are defined to take advantage of the maps
-    // i.e. the map can be looped only over a small section of
-    map<TString, TH1D *> hist1D; // i.e. map["string"] = histogram (use "iterators" to run over a map--see below)
-    map<TString, TH2D *> hist2D; // or take advantage of the regular names given to histograms
-    // reconstructed tracks (EXAMPLE!!) // TODO: modify if need be)
-    for (unsigned int ikin = 0 ; ikin < NKIN ; ikin++)
-    {
-        TString name = TString::Format("RT_%s", proto_tracks[ikin]->GetName());
-        hist1D[name] = (TH1D *) proto_tracks[ikin]->Clone(name);
-        hist1D[name]->SetTitle(TString::Format("%s of the reconstructed tracks", proto_tracks[ikin]->GetTitle()));
-        hist1D[name]->SetXTitle(proto_tracks[ikin]->GetXaxis()->GetTitle());
-        hist1D[name]->SetYTitle(proto_tracks[ikin]->GetYaxis()->GetTitle());
-    }
-    // the same at gen level
-    if (kContainsGenLevel)
-    {   // create histograms for gen level with the exact same structure
-        // TODO: do similar for gen level if appropriate
-    }
+    //const TH1D * proto_tracks[NKIN] = { new const TH1D ("pt" , "transverse momentum;p_T/GeV;#entries",   50,     0,   5),
+    //                                    new const TH1D ("eta", "pseudorapidity     ;#eta   ;#entries",   50,  -2.5,  2.5),
+    //                                    new const TH1D ("phi", "azimuthal angle    ;#phi   ;#entries",   20,   -PI,   PI),
+    //                                    new const TH1D ("M"  , "multiplicity       ;M      ;#enitres",  300,     0,  300)};
+
+    //// The next variables are defined to take advantage of the maps
+    //// i.e. the map can be looped only over a small section of
+    //map<TString, TH1D *> hist1D; // i.e. map["string"] = histogram (use "iterators" to run over a map--see below)
+    //map<TString, TH2D *> hist2D; // or take advantage of the regular names given to histograms
+    //// reconstructed tracks (EXAMPLE!!) // TODO: modify if need be)
+    //for (unsigned int ikin = 0 ; ikin < NKIN ; ikin++)
+    //{
+    //    TString name = TString::Format("RT_%s", proto_tracks[ikin]->GetName());
+    //    hist1D[name] = (TH1D *) proto_tracks[ikin]->Clone(name);
+    //    hist1D[name]->SetTitle(TString::Format("%s of the reconstructed tracks", proto_tracks[ikin]->GetTitle()));
+    //    hist1D[name]->SetXTitle(proto_tracks[ikin]->GetXaxis()->GetTitle());
+    //    hist1D[name]->SetYTitle(proto_tracks[ikin]->GetYaxis()->GetTitle());
+    //}
+    TProfile * phi_dxy = new TProfile ("phi_dxy", "dxy as a function of phi",   20,   -PI,   PI);
 
     /******************* RUNNING OVER THE TREE ***********************/
 
@@ -83,7 +78,10 @@ void TrackAnalysis::Loop(Long64_t maxentries)
         nb = fChain->GetEntry(jentry);   nbytes += nb;
         // if (Cut(ientry) < 0) continue; // currently, the Cut method has not been implemented (and is likely not going to be)
 
-        // TODO: insert proper event storage here
+        for (unsigned int itrack = 0 ; itrack < RT.pt->size() ; itrack++)
+            if (        RT.pt ->at(itrack)  > minpt      
+                && fabs(RT.eta->at(itrack)) < maxtracketa)
+                phi_dxy->Fill(RT.phi->at(itrack), RT.dxy->at(itrack));
     }
     cout << "Loop: 100%!!" << endl;
 
@@ -106,10 +104,11 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     TFile * f = new TFile (outputfilename, "RECREATE");
     // this loop just runs over all the TH1D to save them
     // (note: here we use an iterator to run over the map)
-#define WRITE(HISTOTYPE, HISTOMAP) for (map<TString,HISTOTYPE *>::iterator it_hist = HISTOMAP.begin() ; it_hist != HISTOMAP.end() ; it_hist++) it_hist->second->Write();
-    WRITE(TH1D, hist1D);
-    WRITE(TH2D, hist2D);
-#undef WRITE
+//#define WRITE(HISTOTYPE, HISTOMAP) for (map<TString,HISTOTYPE *>::iterator it_hist = HISTOMAP.begin() ; it_hist != HISTOMAP.end() ; it_hist++) it_hist->second->Write();
+//    WRITE(TH1D, hist1D);
+//    WRITE(TH2D, hist2D);
+//#undef WRITE
+    phi_dxy->Write();
     f->Close();
     cout << "File closed." << endl;
 

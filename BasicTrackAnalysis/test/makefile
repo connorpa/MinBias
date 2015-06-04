@@ -26,6 +26,11 @@ TrackAnalysisTest.o: TrackAnalysisTest.cc TrackAnalysis.h
 	${CXX} -c $^ ${CFLAGS}
 
 
+BPIX.exe: TrackAnalysisBPIX.o
+	${CXX} -o $@ $^ ${LIBS} -Wl,-rpath=${PWD}
+
+TrackAnalysisBPIX.o: TrackAnalysisBPIX.cc TrackAnalysis.h
+	${CXX} -c $^ ${CFLAGS}
 
 EventSelection.exe: TrackAnalysisEventSelection.o
 	${CXX} -o $@ $^ ${LIBS} -Wl,-rpath=${PWD}
