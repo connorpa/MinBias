@@ -27,7 +27,7 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                  minRHeta = 3,
                  maxRHeta = 5;
     const unsigned short int NETABIN = 4, // 4 eta bins of width 0.6 
-                             NKIN = 11, 
+                             NKIN = 12, 
                              NDIR = 4; 
     const double ETABINWIDTH = maxtracketa/((double) NETABIN);
 
@@ -40,9 +40,10 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     // we define constant proto histograms, whose purpose is only to be cloned, to ensure to have always the same structure
     //TH1D * h = new TH1D (name, title, nbins, xlow, xup);
     const TH1D * proto_tracks[NKIN] = { new const TH1D ("pt" , "transverse momentum;p_T/GeV;#entries",   50,     0,   5),
-                                        new const TH1D ("eta", "pseudorapidity     ;#eta   ;#entries",   50,  -2.5,  2.5),
-                                        new const TH1D ("phi", "azimuthal angle    ;#phi   ;#entries",   20,   -PI,   PI),
-                                        new const TH1D ("M"  , "multiplicity       ;M      ;#enitres",  300,     0,  300),
+                                        new const TH1D ("eta", "pseudorapidity;#eta;#entries",   50,  -2.5,  2.5),
+                                        new const TH1D ("phi", "azimuthal angle;#phi;#entries",   20,   -PI,   PI),
+                                        new const TH1D ("M"  , "multiplicity;M;#enitres",  300,     0,  300),
+                                        new const TH1D ("chi2_ndof"  , "chi2ndof;chi2/ndof;a.u.",  500,     0,  5),
                                         new const TH1D ("dxy","d_{xy};d_{xy};Fraction of tracks",200,-10.0,10.0),
                                         new const TH1D ("errxy","sigma_{xy};#sigma_{xy};Fraction of tracks",100,0.0,1.0),
                                         new const TH1D ("dxy_errxy","d_{xy}/#sigma_{xy};d_{xy}/#sigma_{xy};Fraction of tracks",1000,0.0,200.0),
@@ -53,10 +54,11 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                * proto_vertices[NDIR]   = { new const TH1D ("x", "x-position;x/mm;#entries", 100,  0.2, 0.4),
                                             new const TH1D ("y", "y-position;y/mm;#entries", 100,  0.3, 0.5),
                                             new const TH1D ("z", "z-position;z/mm;#entries", 100,  -20, 20 ),
-                                            new const TH1D ("Nvertices", "Number of vertices;Number of vertices;nevents", 50, 0, 50)};
+                                            new const TH1D ("Nvertices", "Number of vertices;Number of vertices;nevents", 20, 0, 20)};
 
     map<TString, TH1D *> hist1D; // i.e. map["string"] = histogram (use "iterators" to run over a map--see below)
     map<TString, TH2D *> hist2D;
+    map<TString, TProfile *> profile;
     // reconstructed vertices
     for (unsigned int idir = 0 ; idir < NDIR ; idir++)
     {
@@ -116,6 +118,14 @@ void TrackAnalysis::Loop(Long64_t maxentries)
         }
         // energy deposit in the forward calorimeter
         hist1D["forward_energy"] = new TH1D ("forward_energy", "forward energy deposit;E/GeV;#entries", 100, 0, 100);
+        
+        
+    //TProfile for the 2D histograms but taking the mean value per bin in Y axis
+    profile["RT_dxy_errxy_VS_eta"] = new TProfile("RT_dxy_errxy_VS_eta","d_{xy}/#sigma_{xy} VS #eta",60,-3.0,3.0);
+    profile["RT_dz_errz_VS_eta"] = new TProfile("RT_dz_errz_VS_eta","d_{z}/#sigma_{z} VS #eta",60,-3.0,3.0);
+    profile["RT_errpt_pt_VS_eta"] = new TProfile("RT_errpt_pt_VS_eta","#sigma_{pt}/dp_{t} VS #eta",60,-3.0,3.0);
+        
+        
         // this macro is used to define 2d histogram using the 1d histogram corresponding to the axes
 #define DEFINE2DHIST(XNAME, YNAME, TITLE) \
         hist2D[XNAME "_VS_" YNAME] = new TH2D (XNAME "_VS_" YNAME, TITLE, \
@@ -152,6 +162,8 @@ void TrackAnalysis::Loop(Long64_t maxentries)
         nb = fChain->GetEntry(jentry);   nbytes += nb;
         // if (Cut(ientry) < 0) continue; // currently, the Cut method has not been implemented (and is likely not going to be)
 
+
+//--------------------------------------------------------------------------------
         if (kContainsGenLevel)
         {
             // test GV
@@ -197,6 +209,11 @@ void TrackAnalysis::Loop(Long64_t maxentries)
             hist2D["forward_energy_VS_GT_pt"]->Fill(genRHenergy, leading_GT_pt);
         }
 
+
+
+//--------------------------------------------------------------------------------
+
+        //RT
         for (unsigned int ivertex = 0 ; ivertex < RV.x->size() ; ivertex++)
         {
             // basic plots
@@ -205,6 +222,10 @@ void TrackAnalysis::Loop(Long64_t maxentries)
             hist1D["RV_z"]->Fill(RV.z->at(ivertex));
         }
         hist1D["RV_Nvertices"]->Fill(RV.x->size());
+        
+        
+        
+        
         // test RT
         // looping over the reconstructed tracks and counting how many pass the cuts
         unsigned int nrectracks = 0; // #tracks passing the cutoffs
@@ -216,31 +237,52 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                 nrectracks++;
             }
         }
+    
+       
+
         double leading_RT_pt = 0.,
                recHFenergy = 0.; // total energy deposit in the forward calorimeter
+        
         for (unsigned int itrack = 0 ; itrack < RT.pt->size() ; itrack++)
         {
+    
+            
+            
             // basic plots
             if (        RT.pt ->at(itrack)  > minpt      
                 && fabs(RT.eta->at(itrack)) < maxtracketa
                 && nrectracks > 0)
             {
-                hist1D["RT_pt" ]->Fill(RT.pt ->at(itrack));
-                hist1D["RT_eta"]->Fill(RT.eta->at(itrack));
-                hist1D["RT_phi"]->Fill(RT.phi->at(itrack));
-                hist1D["RT_dxy_errxy"]->Fill(fabs(RT.dxy->at(itrack))/(RT.dxyError->at(itrack))); 
-                hist1D["RT_dxy"]->Fill(RT.dxy->at(itrack)); 
-                hist1D["RT_errxy"]->Fill(RT.dxyError->at(itrack)); 
-                hist1D["RT_dz_errz"]->Fill(fabs(RT.dz->at(itrack))/(RT.dzError->at(itrack))); 
-                hist1D["RT_dz"]->Fill(RT.dz->at(itrack)); 
-                hist1D["RT_errz"]->Fill(RT.dzError->at(itrack)); 
-                hist1D["RT_pt_errpt"]->Fill((RT.ptError->at(itrack))/RT.pt->at(itrack)); 
+                
+
+
+                hist1D["RT_pt" ]       ->Fill(RT.pt ->at(itrack));
+                hist1D["RT_eta"]       ->Fill(RT.eta->at(itrack));
+                hist1D["RT_phi"]       ->Fill(RT.phi->at(itrack));
+                hist1D["RT_chi2_ndof"] ->Fill(RT.chi2->at(itrack)/RT.ndof->at(itrack));
+                hist1D["RT_dxy_errxy"] ->Fill(fabs(RT.dxy->at(itrack))/(RT.dxyError->at(itrack))); 
+                hist1D["RT_dxy"]       ->Fill(RT.dxy->at(itrack)); 
+                hist1D["RT_errxy"]     ->Fill(RT.dxyError->at(itrack)); 
+                hist1D["RT_dz_errz"]   ->Fill(fabs(RT.dz->at(itrack))/(RT.dzError->at(itrack))); 
+                hist1D["RT_dz"]        ->Fill(RT.dz->at(itrack)); 
+                hist1D["RT_errz"]      ->Fill(RT.dzError->at(itrack)); 
+                hist1D["RT_pt_errpt"]  ->Fill((RT.ptError->at(itrack))/RT.pt->at(itrack)); 
+      
+                profile["RT_dxy_errxy_VS_eta"] ->Fill(RT.eta->at(itrack),fabs((RT.dxy->at(itrack)))/(RT.dxyError->at(itrack)));
+                profile["RT_dz_errz_VS_eta"]   ->Fill(RT.eta->at(itrack),fabs((RT.dz->at(itrack)))/(RT.dzError->at(itrack)));
+                profile["RT_errpt_pt_VS_eta"]  ->Fill(RT.eta->at(itrack),(RT.ptError->at(itrack))/RT.pt->at(itrack));
+                
+
                 // rechit vs leading pt
                 leading_RT_pt = max(leading_RT_pt, RT.pt->at(itrack));
+                
                 // pt in eta bins
                 hist1D[TString::Format("RT_pt_%d", (int) abs(RT.eta->at(itrack)/ETABINWIDTH))]->Fill(RT.pt->at(itrack)); 
             }
         }
+
+
+
         hist1D["RT_M"]->Fill(nrectracks);
         for (unsigned int irechit = 0 ; irechit < RH_HF.energy->size() ; irechit++)
             recHFenergy += RH_HF.energy->at(irechit) ;
@@ -327,6 +369,7 @@ void TrackAnalysis::Loop(Long64_t maxentries)
 #define WRITE(HISTOTYPE, HISTOMAP) for (map<TString,HISTOTYPE *>::iterator it_hist = HISTOMAP.begin() ; it_hist != HISTOMAP.end() ; it_hist++) it_hist->second->Write();
     WRITE(TH1D, hist1D);
     WRITE(TH2D, hist2D);
+    WRITE(TProfile, profile);
 #undef WRITE
     f->Close();
     cout << "File closed." << endl;
