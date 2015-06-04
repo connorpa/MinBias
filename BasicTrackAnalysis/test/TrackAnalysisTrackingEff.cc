@@ -33,8 +33,8 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     cout << "Booking histograms..." << endl;
 
     //Bin with of eta and pt histograms
-    double binWhith   = 4.8/50.0,
-           binWhithpt = 5.0/50.0;
+    double binWidth   = 4.8/50.0,
+           binWidthpt = 5.0/50.0;
 
 
     // those variables are defined to take advantage of the maps
@@ -270,13 +270,24 @@ void TrackAnalysis::Loop(Long64_t maxentries)
 //           RTisHFAnd   = 0,
 //           RTisHFXor   = 0;
 
+    //Variables to be used through the full program, like inside particle loops and then at the end for normalizations, etc. 
+    unsigned int nrectracks = 0; // #tracks passing the cutoffs
+    
+    double RT_dxy  = 0.,
+           RT_sdxy = 0.,
+           RT_dz   = 0.,
+           RT_sdz  = 0.; 
+    
+  
     double NGAnd = 0,
            NGXor = 0,
            NGNo  = 0,  
            NRAnd = 0,
            NRXor = 0,
            NRNo  = 0;
-    
+    //---------------------------------------------------------
+
+
     cout << "Running over " << nentries << " entries..." << endl;
     for (Long64_t jentry=0; jentry<nentries;jentry++)
     {
@@ -293,23 +304,42 @@ void TrackAnalysis::Loop(Long64_t maxentries)
         nb = fChain->GetEntry(jentry);   nbytes += nb;
         // if (Cut(ientry) < 0) continue; // currently, the Cut method has not been implemented (and is likely not going to be)
 
+//*********************** RecoVertexs loop ***************************//
+//TODO: For data is needed to include the matching with primary vertex (the first one of the vertex collection)
+
+    //To see the number of Reco/Gen vertices
+   // cout<<"Number GenVertices =  "<<GV.x->size()<<endl;
+   // cout<<"Number RecoVertices = "<<RV.x->size()<<endl;
+    
+
+
+
+
 //*********************** RecoTracks loop ***************************//
+   
+    //Maximum energy deposition value in HF sides per event    
+    double CTmaxHFminus = 0.,
+           CTmaxHFplus  = 0.;
 
-            //RT
-            unsigned int nrectracks = 0; // #tracks passing the cutoffs
-            double CTmaxHFminus = 0.,
-                   CTmaxHFplus  = 0.;
+    //Total energy deposition in HF sides per event
+    double CTtotHFminus = 0.,
+           CTtotHFplus  = 0.;
+        
+    double RV_x = RV.x->at(0),
+           RV_y = RV.y->at(0),
+           RV_dxy = sqrt(pow(RV_x,2)+pow(RV_y,2));
 
-            double CTtotHFminus = 0.,
-                   CTtotHFplus  = 0.;
+    if(    fabs(RV.z->at(0)) < 20   //Less than 20cm from nominal interaction point along Z
+        && RV_dxy < 0.2             //Less than 0.2cm from nominal beam line     
+        && RT.pt->size() > 3 )     //At least 3 tracks in the vertex
+        {
 
 
 
             //RT maximum CaloTower energy in HF+/- for following event selection
             for (unsigned int itrack = 0 ; itrack < CT.energy->size() ; itrack++)
             { 
-
-
+               
                 //HF plus
                 if (   CT.eta->at(itrack) > minRHeta
                     && CT.eta->at(itrack) < maxRHeta)
@@ -400,6 +430,7 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                     }
                 }
 
+    }//End vertex quality "if"
 
 
 
@@ -416,7 +447,12 @@ void TrackAnalysis::Loop(Long64_t maxentries)
 
                     double EtotHFminus = 0.,
                            EtotHFplus  = 0.;
-
+           
+            //GT maximum energy in HF+/- for following event selection
+            for (unsigned int itrack = 0 ; itrack < GT.pt->size() ; itrack++)
+            { 
+             //Only final state particles will continue
+             if(GT.status->at(itrack)!=1) continue; 
 
                     //GT maximum energy in HF+/- for following event selection
                     for (unsigned int itrack = 0 ; itrack < GT.pt->size() ; itrack++)
@@ -482,6 +518,47 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                             histofill_RT_4vector_multi        = hist1D["RT_HFAnd_4vector_M"];
                             histofill_RT_4vector_EtotHF       = hist1D["RT_HFAnd_4vector_EtotHF"];
                         }
+           //GT event selection
+                //HF_Or selection, at least one side of HF
+                if(EmaxHFminus>Ecut || EmaxHFplus>Ecut){
+                    
+                    //Note that HF_Xor and HF_And are inside HF_Or since they are a subgroup
+                    //HF_Xor selection, only one side of HF
+                    if((EmaxHFminus>Ecut && EmaxHFplus<Ecut) || (EmaxHFminus<Ecut && EmaxHFplus>Ecut)){
+                        
+                        NGXor++; //Counter for normalization 
+//                        GTisHFXor = 1;
+                        histofill_GT_4vector_eta          = hist1D["GT_HFXor_4vector_eta"];
+                        histofill_GT_4vector_pt           = hist1D["GT_HFXor_4vector_pt"];
+                        histofill_GT_4vector_multi        = hist1D["GT_HFXor_4vector_M"];
+                        histofill_GT_4vector_EtotHF       = hist1D["GT_HFXor_4vector_EtotHF"];
+                      //  histofill_GT_EtotHF_VS_M  = hist2D["GT_HFXor_EtotHF_VS_GT_HFXor_M"];
+                      //  histofill_GT_EtotHF_VS_pt = hist2D["GT_HFXor_EtotHF_VS_GT_HFXor_pt"]; 
+                        
+                        //Events selected at gen level but to be filled at reco level
+                        histofill_RT_4vector_eta          = hist1D["RT_HFXor_4vector_eta"];
+                        histofill_RT_4vector_pt           = hist1D["RT_HFXor_4vector_pt"];
+                        histofill_RT_4vector_multi        = hist1D["RT_HFXor_4vector_M"];
+                        histofill_RT_4vector_EtotHF       = hist1D["RT_HFXor_4vector_EtotHF"];
+                    }
+        
+                    //HF_And selection, both sides of HF always.  
+                    else if(EmaxHFminus>Ecut && EmaxHFplus>Ecut){
+        
+                        NGAnd++;   //Counter for normalization 
+//                        GTisHFAnd = 1;
+                        histofill_GT_4vector_eta    = hist1D["GT_HFAnd_4vector_eta"];
+                        histofill_GT_4vector_pt     = hist1D["GT_HFAnd_4vector_pt"];
+                        histofill_GT_4vector_multi  = hist1D["GT_HFAnd_4vector_M"];
+                        histofill_GT_4vector_EtotHF = hist1D["GT_HFAnd_4vector_EtotHF"];
+                     //   histofill_GT_EtotHF_VS_M = hist2D["GT_HFAnd_EtotHF_VS_GT_HFAnd_M"];
+                     //   histofill_GT_EtotHF_VS_pt = hist2D["GT_HFAnd_EtotHF_VS_GT_HFAnd_pt"];
+                        
+                        //Events selected at gen level but to be filled at reco level
+                        histofill_RT_4vector_eta          = hist1D["RT_HFAnd_4vector_eta"];
+                        histofill_RT_4vector_pt           = hist1D["RT_HFAnd_4vector_pt"];
+                        histofill_RT_4vector_multi        = hist1D["RT_HFAnd_4vector_M"];
+                        histofill_RT_4vector_EtotHF       = hist1D["RT_HFAnd_4vector_EtotHF"];
                     }
 
                     else {
@@ -490,9 +567,10 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                         histofill_GT_4vector_pt     = hist1D["GT_NoHF_4vector_pt"];
                         histofill_GT_4vector_multi  = hist1D["GT_NoHF_4vector_M"];
                         histofill_GT_4vector_EtotHF = hist1D["GT_NoHF_4vector_EtotHF"];
-                        //   histofill_GT_EtotHF_VS_M = hist2D["GT_NoHF_EtotHF_VS_GT_NoHF_M"];
-                        //   histofill_GT_EtotHF_VS_pt = hist2D["GT_NoHF_EtotHF_VS_GT_NoHF_pt"];
-
+                     //   histofill_GT_EtotHF_VS_M = hist2D["GT_NoHF_EtotHF_VS_GT_NoHF_M"];
+                     //   histofill_GT_EtotHF_VS_pt = hist2D["GT_NoHF_EtotHF_VS_GT_NoHF_pt"];
+                        
+                        //Events selected at gen level but to be filled at reco level
                         histofill_RT_4vector_eta          = hist1D["RT_NoHF_4vector_eta"];
                         histofill_RT_4vector_pt           = hist1D["RT_NoHF_4vector_pt"];
                         histofill_RT_4vector_multi        = hist1D["RT_NoHF_4vector_M"];
@@ -532,6 +610,52 @@ void TrackAnalysis::Loop(Long64_t maxentries)
 
                 //RT loop    
                 for (unsigned int itrack = 0 ; itrack < RT.pt->size() ; itrack++)
+
+
+
+                if (       GT.pt ->at(itrack)  > minpt          //Minimum quiality pt (for this analysis should be 0.1 or 0.2GeV
+                    && abs(GT.eta->at(itrack)) < maxtracketa    //Only particles in the tracker acceptance 
+                    && abs(GT.charge->at(itrack))==1            //Only charged particles 
+                    && GT.status->at(itrack)==1)                //Only final state stable particles
+                {
+                    ngentracks++; 
+                    if(histofill_GT_tower_eta != 0x0) histofill_GT_tower_eta->Fill(GT.eta->at(itrack));
+                    if(histofill_GT_4vector_eta != 0x0) histofill_GT_4vector_eta->Fill(GT.eta->at(itrack));
+                    if(histofill_GT_tower_pt != 0x0) histofill_GT_tower_pt->Fill(GT.pt->at(itrack));
+                    if(histofill_GT_4vector_pt != 0x0) histofill_GT_4vector_pt->Fill(GT.pt->at(itrack));
+//                    if(histofill_GT_EtotHF_VS_pt != 0x0) histofill_GT_EtotHF_VS_pt->Fill(EtotHFminus+EtotHFplus,GT.pt->at(itrack) );
+                }
+            }
+           
+            //Once per event
+            if(histofill_GT_tower_multi != 0x0) histofill_GT_tower_multi->Fill(ngentracks);
+            if(histofill_GT_4vector_multi != 0x0) histofill_GT_4vector_multi->Fill(ngentracks);
+            if(histofill_GT_tower_EtotHF != 0x0) histofill_GT_tower_EtotHF->Fill(EtotHFminus+EtotHFplus);
+            if(histofill_GT_4vector_EtotHF != 0x0) histofill_GT_4vector_EtotHF->Fill(EtotHFminus+EtotHFplus);
+//            if(histofill_GT_EtotHF_VS_M != 0x0) histofill_GT_EtotHF_VS_M->Fill(EtotHFminus+EtotHFplus, ngentracks); 
+//            ngentracksout = ngentracks;
+
+           }//End "if" for only when there is Generator level
+            
+        
+        //RT loop    
+            for (unsigned int itrack = 0 ; itrack < RT.pt->size() ; itrack++)
+            {
+
+
+                //For track quality
+                RT_dxy  = RT.dxy      -> at(itrack);  
+                RT_sdxy = RT.dxyError -> at(itrack); 
+                RT_dz   = RT.dz       -> at(itrack); 
+                RT_sdz  = RT.dzError  -> at(itrack); 
+               // if(RT_dxy/RT_sdxy>3 || RT_dz/RT_sdz>3) continue;  //Track quality selection
+                //--
+
+                if (   RT.pt ->at(itrack) > minpt   
+                    && abs(RT.eta->at(itrack)) < maxtracketa
+                    && abs(RT.charge->at(itrack))==1
+                    && RT_dxy/RT_sdxy<3
+                    && RT_dz/RT_sdz<3) 
                 {
 
                     if (       RT.pt ->at(itrack)  > minpt   
@@ -610,6 +734,42 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     //            name = TString::Format("RT_HFOr_EtotHF_VS_RT_HFOr_pt");
     //            hist2D[name]->Add   (hist2D[TString::Format("RT_HFAnd_EtotHF_VS_RT_HFAnd_pt")]);   
     //            hist2D[name]->Add   (hist2D[TString::Format("RT_HFXor_EtotHF_VS_RT_HFXor_pt")]);   
+        
+    if (kContainsGenLevel){
+        //GT
+        for (unsigned int ikin = 0 ; ikin < NKIN ; ikin++)
+        {
+            TString name = TString::Format("GT_HFOr_tower_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Add   (hist1D[TString::Format("GT_HFAnd_tower_%s",proto_tracks2[ikin]->GetName())]);   
+            hist1D[name]->Add   (hist1D[TString::Format("GT_HFXor_tower_%s",proto_tracks2[ikin]->GetName())]);   
+            
+            name = TString::Format("GT_HFOr_4vector_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Add   (hist1D[TString::Format("GT_HFAnd_4vector_%s",proto_tracks2[ikin]->GetName())]);   
+            hist1D[name]->Add   (hist1D[TString::Format("GT_HFXor_4vector_%s",proto_tracks2[ikin]->GetName())]);   
+        }
+    
+
+//            TString name = TString::Format("GT_HFOr_EtotHF_VS_GT_HFOr_M");
+//            hist2D[name]->Add   (hist2D[TString::Format("GT_HFAnd_EtotHF_VS_GT_HFAnd_M")]);   
+//            hist2D[name]->Add   (hist2D[TString::Format("GT_HFXor_EtotHF_VS_GT_HFXor_M")]);   
+//
+//            name = TString::Format("GT_HFOr_EtotHF_VS_GT_HFOr_pt");
+//            hist2D[name]->Add   (hist2D[TString::Format("GT_HFAnd_EtotHF_VS_GT_HFAnd_pt")]);   
+//            hist2D[name]->Add   (hist2D[TString::Format("GT_HFXor_EtotHF_VS_GT_HFXor_pt")]);   
+    }
+
+
+        //RT
+        for (unsigned int ikin = 0 ; ikin < NKIN ; ikin++)
+        {
+            TString name = TString::Format("RT_HFOr_tower_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Add   (hist1D[TString::Format("RT_HFAnd_tower_%s",proto_tracks2[ikin]->GetName())]);   
+            hist1D[name]->Add   (hist1D[TString::Format("RT_HFXor_tower_%s",proto_tracks2[ikin]->GetName())]);   
+            
+            name = TString::Format("RT_HFOr_4vector_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Add   (hist1D[TString::Format("RT_HFAnd_4vector_%s",proto_tracks2[ikin]->GetName())]);   
+            hist1D[name]->Add   (hist1D[TString::Format("RT_HFXor_4vector_%s",proto_tracks2[ikin]->GetName())]);   
+        }
 
     /*************** NORMALIZATION OF HISTOGRAMS *****************************/
     //Normalizing to the number of selected events
@@ -704,6 +864,113 @@ void TrackAnalysis::Loop(Long64_t maxentries)
         name = TString::Format("RT_HFXor_4vector_%s", proto_tracks2[ikin]->GetName());
         hist1D[name]->Scale(1.0/(binWhithpt));   
     }
+        //GT and RT in a single loop. Bin whith and # of selected events 
+//        for (unsigned int ikin = 0 ; ikin < 1 ; ikin++) //Just for eta destribution.
+//        {
+//            TString name = TString::Format("GT_HFOr_%s", proto_tracks2[ikin]->GetName());
+//            hist1D[name]->Scale(1.0/(binWidth*(NGAnd+NGXor)));   
+//            name = TString::Format("RT_HFOr_%s", proto_tracks2[ikin]->GetName());
+//            hist1D[name]->Scale(1.0/(binWidth*(NRAnd+NRXor)));   
+//           
+//            name = TString::Format("GT_HFAnd_%s", proto_tracks2[ikin]->GetName());
+//            hist1D[name]->Scale(1.0/(binWidth*NGAnd));   
+//            name = TString::Format("RT_HFAnd_%s", proto_tracks2[ikin]->GetName());
+//            hist1D[name]->Scale(1.0/(binWidth*NRAnd));   
+//            
+//            name = TString::Format("GT_HFXor_%s", proto_tracks2[ikin]->GetName());
+//            hist1D[name]->Scale(1.0/(binWidth*NGXor));   
+//            name = TString::Format("RT_HFXor_%s", proto_tracks2[ikin]->GetName());
+//            hist1D[name]->Scale(1.0/(binWidth*NRXor));   
+//        }
+
+
+        for (unsigned int ikin = 0 ; ikin < 1 ; ikin++) //Just for eta  destributions.
+        {
+            
+            
+        if (kContainsGenLevel){
+            TString name = TString::Format("GT_HFOr_tower_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Scale(1.0/(binWidth));   
+            
+            name = TString::Format("GT_HFAnd_tower_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Scale(1.0/(binWidth));   
+            
+            name = TString::Format("GT_HFXor_tower_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Scale(1.0/(binWidth));   
+            
+            name = TString::Format("GT_HFOr_4vector_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Scale(1.0/(binWidth));   
+            
+            name = TString::Format("GT_HFAnd_4vector_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Scale(1.0/(binWidth));   
+            
+            name = TString::Format("GT_HFXor_4vector_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Scale(1.0/(binWidth));   
+        }    
+            
+            
+            TString  name1 = TString::Format("RT_HFOr_tower_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name1]->Scale(1.0/(binWidth));   
+           
+            name1 = TString::Format("RT_HFAnd_tower_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name1]->Scale(1.0/(binWidth));   
+            
+            name1 = TString::Format("RT_HFXor_tower_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name1]->Scale(1.0/(binWidth));   
+            
+            name1 = TString::Format("RT_HFOr_4vector_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name1]->Scale(1.0/(binWidth));   
+           
+            name1 = TString::Format("RT_HFAnd_4vector_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name1]->Scale(1.0/(binWidth));   
+            
+            name1 = TString::Format("RT_HFXor_4vector_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name1]->Scale(1.0/(binWidth));   
+        }
+
+        for (unsigned int ikin = 1 ; ikin < 2 ; ikin++) //Just for pt destributions.
+        {
+        
+        if (kContainsGenLevel){
+            
+            TString name = TString::Format("GT_HFOr_tower_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Scale(1.0/(binWidthpt));   
+            
+            name = TString::Format("GT_HFAnd_tower_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Scale(1.0/(binWidthpt));   
+            
+            name = TString::Format("GT_HFXor_tower_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Scale(1.0/(binWidthpt));   
+           
+            name = TString::Format("GT_HFOr_4vector_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Scale(1.0/(binWidthpt));   
+
+            name = TString::Format("GT_HFAnd_4vector_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Scale(1.0/(binWidthpt));   
+
+            name = TString::Format("GT_HFXor_4vector_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name]->Scale(1.0/(binWidthpt));   
+        }
+
+
+            TString name1 = TString::Format("RT_HFOr_tower_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name1]->Scale(1.0/(binWidthpt));   
+           
+            name1 = TString::Format("RT_HFAnd_tower_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name1]->Scale(1.0/(binWidthpt));   
+            
+            name1 = TString::Format("RT_HFXor_tower_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name1]->Scale(1.0/(binWidthpt));   
+            
+            name1 = TString::Format("RT_HFOr_4vector_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name1]->Scale(1.0/(binWidthpt));   
+           
+            name1 = TString::Format("RT_HFAnd_4vector_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name1]->Scale(1.0/(binWidthpt));   
+            
+            name1 = TString::Format("RT_HFXor_4vector_%s", proto_tracks2[ikin]->GetName());
+            hist1D[name1]->Scale(1.0/(binWidthpt));   
+        }
 
     /*************** EFFICIENCIES AND RATIOS *****************************/
     //
