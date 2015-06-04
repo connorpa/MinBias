@@ -286,11 +286,6 @@ void TrackAnalysis::Loop(Long64_t maxentries)
            RT_dz   = 0.,
            RT_sdz  = 0.; 
     
-    double CTmaxHFminus = 0.,
-           CTmaxHFplus  = 0.;
-
-    double CTtotHFminus = 0.,
-           CTtotHFplus  = 0.;
   
     double NGAnd = 0,
            NGXor = 0,
@@ -329,7 +324,14 @@ void TrackAnalysis::Loop(Long64_t maxentries)
 
 
 //*********************** RecoTracks loop ***************************//
-    
+   
+    //Maximum energy deposition value in HF sides per event    
+    double CTmaxHFminus = 0.,
+           CTmaxHFplus  = 0.;
+
+    //Total energy deposition in HF sides per event
+    double CTtotHFminus = 0.,
+           CTtotHFplus  = 0.;
         
     double RV_x = RV.x->at(0),
            RV_y = RV.y->at(0),
