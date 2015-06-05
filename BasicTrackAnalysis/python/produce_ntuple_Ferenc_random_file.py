@@ -12,7 +12,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 process.TFileService = cms.Service("TFileService",
-        fileName = cms.string("/afs/desy.de/user/c/connorpa/CMSSW/CMSSW_7_4_0/src/MinBias/BasicTrackAnalysis/data/bonsai_data_Ferenc_random_file.root")
+        fileName = cms.string("/nfs/dust/cms/user/connorpa/dndeta_analysis_samples/bonsai_data_Ferenc_random_file.root")
 )
 
 # TODO: adapt the input tags according to the content of the input files

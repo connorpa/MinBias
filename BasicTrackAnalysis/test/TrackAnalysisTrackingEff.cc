@@ -29,7 +29,7 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                  max_relative_dxy = 3,
                  max_relative_dz  = 3;
     const unsigned short int NKIN        = 4, // KINematics, plus multiplicity
-                             NLEVELS     = kContainsGenLevel ? 2 : 1,
+                             NLEVELS     = kContainsGenLevel ? 2 : 1, // "A ? B : C" if equivalient to "if (A) B ; else C;"
                              NSELECTIONS = 4,
                              NTYPES      = kContainsGenLevel ? 2 : 1;
 
@@ -56,9 +56,9 @@ void TrackAnalysis::Loop(Long64_t maxentries)
 
     // counters (for the different types of selection possible)
     map<TString, unsigned long> counters;
-    for (unsigned short int ilevel = 0 ; ilevel < NLEVELS ; ilevel++)
+    for (unsigned short int itype = 0 ; itype < NTYPES ; itype++)
         for (unsigned short int iselection = 0 ; iselection < NSELECTIONS ; iselection++)
-            counters[levels[ilevel] + selections[iselection]] = 0;
+            counters[types[itype] + selections[iselection]] = 0;
 
     // given the prototype histograms, the levels, the selections, and the types, we now properly book the histograms
     // note the smart use of the loops :-)
@@ -106,16 +106,23 @@ void TrackAnalysis::Loop(Long64_t maxentries)
         //*********************** RecoVertexs loop ***************************//
         //TODO: For data is needed to include the matching with primary vertex (the first one of the vertex collection)
 
-        //*********************** RecoTracks loop ***************************//
+        //*********************** RecoTracks loop ***************************// // maybe thius comment is not fully relevant
 
-        if(   fabs(RV.z->at(0))                           < vertex_max_z  // less than 20cm from nominal interaction point along Z
-           && sqrt(pow(RV.x->at(0),2)+pow(RV.y->at(0),2)) < vertex_max_r  // less than 0.2cm from nominal beam line     
-           && RV.isValid->at(0)                                         ) // TODO: check with Juan
+
+        /********************** SELECTING FOR EACH TYPE (4VECTOR OR TOWER) THE AND,XOR,(OR,)NO *********************/
+
+        //Maximum energy deposition value in HF sides per event    
+        double CTmaxHFminus = 0.,
+               CTmaxHFplus  = 0.,
+               EmaxHFminus = 0.,
+               EmaxHFplus  = 0.;
+        unsigned short int iselection[2] = {3,3}; // NoHF by default for tower and 4vector selections
+
+        //RT event **selection**
+        if(1)//   fabs(RV.z->at(0))                           < vertex_max_z  // less than 20cm from nominal interaction point along Z
+           //&& sqrt(pow(RV.x->at(0),2)+pow(RV.y->at(0),2)) < vertex_max_r  // less than 0.2cm from nominal beam line     
+           //&& RV.isValid->at(0)                                         ) // TODO: check with Juan
         {
-            //Maximum energy deposition value in HF sides per event    
-            double CTmaxHFminus = 0.,
-                   CTmaxHFplus  = 0.;
-
             //RT maximum CaloTower energy in HF+/- for following event selection
             for (unsigned int icalo = 0 ; icalo < CT.energy->size() ; icalo++)
             { 
@@ -128,25 +135,59 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                     && CT.eta->at(icalo) > -maxRHeta)
                     CTmaxHFminus = max(CTmaxHFminus, CT.energy->at(icalo));
             }
-
-            //RT event **selection** (but filling RT and GT **levels**)
             //HF_Or selection, at least one side of HF
-
-            unsigned short int irecselection = 3; // NoHF by default
             if(CTmaxHFminus>CTcut || CTmaxHFplus>CTcut) // Or
             {
                 if((CTmaxHFminus>CTcut && CTmaxHFplus<CTcut) || (CTmaxHFminus<CTcut && CTmaxHFplus>CTcut)) // Xor
-                    irecselection = 1;
+                    iselection[0] = 1;
                 else if(CTmaxHFminus>CTcut && CTmaxHFplus>CTcut)  // And
-                    irecselection = 0;
+                    iselection[0] = 0;
                 // Or = And + Xor -> treated at the end of the Loop method
             }
-            counters["RT" + selections[irecselection]]++;
+            counters[types[0] + selections[iselection[0]]]++; // e.g. towerand, towerxor, towernohf  (okay, it is finally not that good...)
+        }
 
-            // filling of the rec histograms satisfying the selection
-            for (unsigned short int itype = 0 ; itype < NTYPES ; itype++)
+        //GT event **selection**
+        if(kContainsGenLevel)
+        {
+            //GT maximum energy in HF+/- for following event selection
+            for (unsigned int itrack = 0 ; itrack < GT.pt->size() ; itrack++)
+            { 
+                //Only final state particles will continue
+                if(GT.status->at(itrack) != 1) continue; 
+
+                //HF plus
+                if (   GT.eta->at(itrack) > minRHeta
+                    && GT.eta->at(itrack) < maxRHeta)
+                    EmaxHFplus = max(EmaxHFplus, GT.energy->at(itrack));
+                //HF minus
+                if (   GT.eta->at(itrack) < -minRHeta
+                    && GT.eta->at(itrack) > -maxRHeta)
+                    EmaxHFminus = max(EmaxHFminus, GT.energy->at(itrack));
+            }
+            //HF_Or selection, at least one side of HF
+            if(EmaxHFminus>Ecut || EmaxHFplus>Ecut)
             {
-                const TString rec_histo_to_fill = "RT_" + selections[irecselection] + "_" + types[itype] + "_";
+                //Note that HF_Xor and HF_And are inside HF_Or since they are a subgroup
+                //HF_Xor selection, only one side of HF
+                if((EmaxHFminus>Ecut && EmaxHFplus<Ecut) || (EmaxHFminus<Ecut && EmaxHFplus>Ecut))
+                    iselection[1] = 1;
+                else if(EmaxHFminus>Ecut && EmaxHFplus>Ecut)
+                    iselection[1] = 0;
+            }
+            counters[types[1] + selections[iselection[1]]]++; // e.g. 4vectand, 4vectxor, 4vectnohf  (okay, it is finally not that good...)
+        }
+
+        /********************* FILLING GEN AND RECO HISTOGRAM (LEVEL) ***********************/
+
+        if(   fabs(RV.z->at(0))                           < vertex_max_z  // less than 20cm from nominal interaction point along Z
+           && sqrt(pow(RV.x->at(0),2)+pow(RV.y->at(0),2)) < vertex_max_r  // less than 0.2cm from nominal beam line     
+           && RV.isValid->at(0)                                         ) // TODO: check with Juan
+        {
+            // filling of the rec histograms satisfying the selection
+            for (unsigned short int itype = 0 ; itype < NTYPES ; itype++) // TODO: seperate tower and 4vector
+            {
+                const TString rec_histo_to_fill = "RT_" + selections[iselection[itype]] + "_" + types[itype] + "_";
                 unsigned long int nrectracks = 0; // multiplicity
                 double CTtotHF = 0.; // measure the deposit of energy at rec level in the HF region
                 for (unsigned int itrack = 0 ; itrack < RT.pt->size() ; itrack++)
@@ -155,8 +196,8 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                     if (        RT.pt ->at(itrack)  > minpt   
                         && fabs(RT.eta->at(itrack)) < maxtracketa
                         && fabs(RT.charge->at(itrack)) == 1
-                        && RT.dxy->at(itrack)/RT.dxyError->at(itrack) < max_relative_dz   // TODO: put cutoff values into the header of the method
-                        && RT.dz ->at(itrack)/RT.dzError ->at(itrack) < max_relative_dxy) 
+                        && RT.dxy->at(itrack)/RT.dxyError->at(itrack) < max_relative_dz
+                        && RT.dz ->at(itrack)/RT.dzError ->at(itrack) < max_relative_dxy) // TODO: correct the definition of dxy and dz
                     {
                         hist1D[rec_histo_to_fill + "pt" ]->Fill(RT.pt ->at(itrack));
                         hist1D[rec_histo_to_fill + "eta"]->Fill(RT.eta->at(itrack));
@@ -175,44 +216,10 @@ void TrackAnalysis::Loop(Long64_t maxentries)
 
         if (kContainsGenLevel)
         {
-            double EmaxHFminus = 0.,
-                   EmaxHFplus  = 0.;
-
-            //GT maximum energy in HF+/- for following event selection
-            for (unsigned int itrack = 0 ; itrack < GT.pt->size() ; itrack++)
-            { 
-                //Only final state particles will continue
-                if(GT.status->at(itrack) != 1) continue; 
-
-                //HF plus
-                if (   GT.eta->at(itrack) > minRHeta
-                    && GT.eta->at(itrack) < maxRHeta)
-                    EmaxHFplus = max(EmaxHFplus, GT.energy->at(itrack));
-                //HF minus
-                if (   GT.eta->at(itrack) < -minRHeta
-                    && GT.eta->at(itrack) > -maxRHeta)
-                    EmaxHFminus = max(EmaxHFminus, GT.energy->at(itrack));
-            }
-
-
-            //GT event selection
-            //HF_Or selection, at least one side of HF
-            unsigned short int igenselection = 3; // NoHF by default
-            if(EmaxHFminus>Ecut || EmaxHFplus>Ecut)
-            {
-                //Note that HF_Xor and HF_And are inside HF_Or since they are a subgroup
-                //HF_Xor selection, only one side of HF
-                if((EmaxHFminus>Ecut && EmaxHFplus<Ecut) || (EmaxHFminus<Ecut && EmaxHFplus>Ecut))
-                    igenselection = 1;
-                else if(EmaxHFminus>Ecut && EmaxHFplus>Ecut)
-                    igenselection = 0;
-            }
-            counters["GT" + selections[igenselection]]++;
-
             // filling of the gen histograms satisfying the selection
             for (unsigned short int itype = 0 ; itype < NTYPES ; itype++)
             {
-                const TString gen_histo_to_fill = "GT_" + selections[igenselection] + "_" + types[itype] + "_";
+                const TString gen_histo_to_fill = "GT_" + selections[iselection[itype]] + "_" + types[itype] + "_";
                 unsigned long int ngentracks = 0; // multiplicity
                 double EtotHF = 0.; // measure the deposit of energy at gen level in the HF region
                 for (unsigned int itrack = 0 ; itrack < GT.pt->size() ; itrack++)
@@ -242,7 +249,7 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     cout << "Loop: 100%!!" << endl;
 
 
-    /*************** ADDING AND+XOR HISTOGRAMS TO CREATE OR HISTOGRAMS  AND NORMALISING*****************************/
+    /*************** ADDING AND+XOR HISTOGRAMS TO CREATE OR-HISTOGRAMS  AND NORMALISING*****************************/
 
     // here we are mainly normalising histograms
     // and moreover computing the or-histograms
@@ -263,7 +270,7 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                         // add HFAnd and HFXor
                         hist1D[name]->Add(hist1D[TString::Format("%s_%s_%s_%s", levels[ilevel].Data(), selections[0].Data(), types[itype].Data(), proto_tracks[ikin]->GetName())]);
                         hist1D[name]->Add(hist1D[TString::Format("%s_%s_%s_%s", levels[ilevel].Data(), selections[1].Data(), types[itype].Data(), proto_tracks[ikin]->GetName())]);
-                        counters[levels[ilevel] + selections[2]] = counters[levels[ilevel] + selections[0]] + counters[levels[ilevel] + selections[1]];
+                        counters[types[itype] + selections[2]] = counters[types[itype] + selections[0]] + counters[types[itype] + selections[1]];
                     }
                     cout << "Normalising " << name << endl;
                     hist1D[name]->Scale(scale_factor);
@@ -279,24 +286,22 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     cout << BREAKLINE << endl
          << "Number of events\t=\t" << nentries << " (100%)" << endl;
     // give absolute values and percentages
-    for (unsigned short int ilevel = 0 ; ilevel < NLEVELS ; ilevel++)
+    for (unsigned short int itype = 0 ; itype < NTYPES ; itype++)
     {
         cout << BREAKLINE << endl;
         for (unsigned short int iselection = 0 ; iselection < NSELECTIONS ; iselection++)
-            cout << "Number of " << levels[ilevel] << selections[iselection] << "\t=\t"
-                 << counters[levels[ilevel] + selections[iselection]]
-                 << "\t(" << 100.*((double)counters[levels[ilevel] + selections[iselection]])/((double)nentries) << " %)" << endl;
+            cout << "Number of " << types[itype] << selections[iselection] << "\t=\t"
+                 << counters[types[itype] + selections[iselection]]
+                 << "\t(" << 100.*((double)counters[types[itype] + selections[iselection]])/((double)nentries) << " %)" << endl;
     }
     if (kContainsGenLevel)
     {
         cout << BREAKLINE << endl;
         // ratios rec/gen
         for (unsigned short int iselection = 0 ; iselection < NSELECTIONS ; iselection++)
-            cout << "Ratio rec/gen of " << selections[iselection] << "\t=\t" << ((double)counters["RT" + selections[iselection]])/((double)counters["GT" + selections[iselection]]) << endl;
+            cout << "Ratio rec/gen selection of " << selections[iselection] << "\t=\t" << ((double)counters[types[0] + selections[iselection]])/((double)counters[types[1] + selections[iselection]]) << endl;
     }
-    cout << BREAKLINE << endl
-         << "Note: you can get those value from the histograms that have been created." << endl
-         << BREAKLINE << endl;
+    cout << BREAKLINE << endl;
 #undef BREAKLINE
 
     /************************* SAVING *******************************/
