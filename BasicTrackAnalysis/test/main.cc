@@ -23,7 +23,7 @@ int main (int argc, char * argv[])
 
     // working
     TrackAnalysis * ta = new TrackAnalysis (filename, kGenLevel); // recall: a second argument can be given to specify wether the file is a data file or a montecarlo file (default is MC)
-    ta->Loop(maxevents); // TODO: find more root-suitable conversion
+    ta->Loop(maxevents);
     rootapp->Terminate();
 
     // ending

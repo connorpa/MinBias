@@ -8,16 +8,17 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-         "file:/nfs/dust/cms/user/connorpa/dndeta_analysis_samples/MinBias_TuneCUETP8M1_13TeV_pythia8_1.root"
-        ,"file:/nfs/dust/cms/user/connorpa/dndeta_analysis_samples/MinBias_TuneCUETP8M1_13TeV_pythia8_2.root"
-       #,"file:/nfs/dust/cms/user/connorpa/dndeta_analysis_samples/MinBias_TuneCUETP8M1_13TeV_pythia8_3.root" # TODO: corrupted... ask Benoit...
-       #,"file:/nfs/dust/cms/user/connorpa/dndeta_analysis_samples/MinBias_TuneCUETP8M1_13TeV_pythia8_4.root"
-       #,"file:/nfs/dust/cms/user/connorpa/dndeta_analysis_samples/MinBias_TuneCUETP8M1_13TeV_pythia8_5.root"
-       #,"file:/nfs/dust/cms/user/connorpa/dndeta_analysis_samples/MinBias_TuneCUETP8M1_13TeV_pythia8_6.root"
+          "file:/nfs/dust/cms/user/roland/MinBias-2015-MonteCarlo/MinBias_TuneCUETP8M1_13TeV_pythia8/MinBias_TuneCUETP8M1_13TeV_pythia8_1.root"
+        , "file:/nfs/dust/cms/user/roland/MinBias-2015-MonteCarlo/MinBias_TuneCUETP8M1_13TeV_pythia8/MinBias_TuneCUETP8M1_13TeV_pythia8_2.root"
+        , "file:/nfs/dust/cms/user/roland/MinBias-2015-MonteCarlo/MinBias_TuneCUETP8M1_13TeV_pythia8/MinBias_TuneCUETP8M1_13TeV_pythia8_3.root"
+        , "file:/nfs/dust/cms/user/roland/MinBias-2015-MonteCarlo/MinBias_TuneCUETP8M1_13TeV_pythia8/MinBias_TuneCUETP8M1_13TeV_pythia8_4.root"
+        , "file:/nfs/dust/cms/user/roland/MinBias-2015-MonteCarlo/MinBias_TuneCUETP8M1_13TeV_pythia8/MinBias_TuneCUETP8M1_13TeV_pythia8_5.root"
+        , "file:/nfs/dust/cms/user/roland/MinBias-2015-MonteCarlo/MinBias_TuneCUETP8M1_13TeV_pythia8/MinBias_TuneCUETP8M1_13TeV_pythia8_6.root"
     )
 )
+
 process.TFileService = cms.Service("TFileService",
-        fileName = cms.string("/afs/desy.de/user/c/connorpa/CMSSW/CMSSW_7_4_0/src/MinBias/BasicTrackAnalysis/data/bonsai_MC_MinBias_TuneCUETP8M1_13TeV_pythia8.root")
+        fileName = cms.string("/nfs/dust/cms/user/connorpa/dndeta_analysis_samples/bonsai_MC_MinBias_TuneCUETP8M1_13TeV_pythia8.root")
 )
 
 # TODO: adapt the input tags according to the content of the input files

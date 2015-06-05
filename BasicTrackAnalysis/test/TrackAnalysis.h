@@ -76,6 +76,8 @@ class TrackAnalysis // TODO: handle the cases where only certain branches are pr
     TBranch * b_RecoTracks_dxyError;    //!
     TBranch * b_RecoTracks_dz;       //!
     TBranch * b_RecoTracks_dzError;    //!
+    TBranch * b_RecoTracks_dsz;       //!
+    TBranch * b_RecoTracks_dszError;    //!
     TBranch * b_RecoTracks_chi2; //!
     TBranch * b_RecoTracks_ndof; //!
     TBranch * b_RecoTracks_vx;   //!
@@ -217,6 +219,8 @@ void TrackAnalysis::Init(TTree *tree)
     fChain->SetBranchAddress("RecoTracks.dxyError"         , &RT.dxyError         , &b_RecoTracks_dxyError         );
     fChain->SetBranchAddress("RecoTracks.dz"               , &RT.dz               , &b_RecoTracks_dz               );
     fChain->SetBranchAddress("RecoTracks.dzError"          , &RT.dzError          , &b_RecoTracks_dzError          );
+    fChain->SetBranchAddress("RecoTracks.dsz"              , &RT.dsz              , &b_RecoTracks_dsz              );
+    fChain->SetBranchAddress("RecoTracks.dszError"         , &RT.dszError         , &b_RecoTracks_dszError         );
     fChain->SetBranchAddress("RecoTracks.chi2"             , &RT.chi2             , &b_RecoTracks_chi2             );
     fChain->SetBranchAddress("RecoTracks.ndof"             , &RT.ndof             , &b_RecoTracks_ndof             );
     fChain->SetBranchAddress("RecoTracks.vx"               , &RT.vx               , &b_RecoTracks_vx               );

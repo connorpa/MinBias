@@ -109,6 +109,8 @@ struct MyRecoTracks : public MyTrackBase
                           * dxyError,
                           * dz      ,
                           * dzError ,
+                          * dsz     ,
+                          * dszError,
                           * chi2    ,
                           * ndof    ,
                           * vx      ,
@@ -126,6 +128,8 @@ struct MyRecoTracks : public MyTrackBase
         ,   dxyError         (0x0)
         ,   dz               (0x0)
         ,   dzError          (0x0)
+        ,   dsz              (0x0)
+        ,   dszError         (0x0)
         ,   chi2             (0x0)
         ,   ndof             (0x0)
         ,   vx               (0x0)

@@ -318,6 +318,8 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         RT.dxyError         ->clear();
         RT.dz               ->clear();
         RT.dzError          ->clear();
+        RT.dsz              ->clear();
+        RT.dszError         ->clear();
         RT.charge           ->clear();
         RT.chi2             ->clear();
         RT.ndof             ->clear();
@@ -339,6 +341,8 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             RT.dxyError         ->push_back( (trackcollection->at(itrack)).dxyError         () );
             RT.dz               ->push_back( (trackcollection->at(itrack)).dz               () );
             RT.dzError          ->push_back( (trackcollection->at(itrack)).dzError          () );
+            RT.dsz              ->push_back( (trackcollection->at(itrack)).dsz              () );
+            RT.dszError         ->push_back( (trackcollection->at(itrack)).dszError         () );
             RT.charge           ->push_back( (trackcollection->at(itrack)).charge           () );
             RT.chi2             ->push_back( (trackcollection->at(itrack)).chi2             () );
             RT.ndof             ->push_back( (trackcollection->at(itrack)).ndof             () );
@@ -503,6 +507,8 @@ void TreeProducer::beginJob()
         tree->Branch("RecoTracks.phiError"         , &RT.phiError         ); 
         tree->Branch("RecoTracks.dxy"              , &RT.dxy              );
         tree->Branch("RecoTracks.dxyError"         , &RT.dxyError         );
+        tree->Branch("RecoTracks.dsz"              , &RT.dsz              );
+        tree->Branch("RecoTracks.dszError"         , &RT.dszError         );
         tree->Branch("RecoTracks.dz"               , &RT.dz               );
         tree->Branch("RecoTracks.dzError"          , &RT.dzError          );
         tree->Branch("RecoTracks.charge"           , &RT.charge           ); 
