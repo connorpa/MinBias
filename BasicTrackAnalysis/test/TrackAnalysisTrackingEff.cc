@@ -6,6 +6,7 @@
 /**************************************************************************************/
 #define TrackAnalysis_cxx
 #include "TrackAnalysis.h"
+#include <cstdio>
 #include <TH2.h>
 #include <TMath.h>
 
@@ -168,7 +169,7 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                     if (   fabs(CT.eta->at(icalo)) > minRHeta
                         && fabs(CT.eta->at(icalo)) < maxRHeta)
                         CTtotHF += CT.energy->at(icalo);
-                hist1D[rec_histo_to_fill + "EtotHF"]->Fill(CTtotHF   );
+                hist1D[rec_histo_to_fill + "EtotHF"]->Fill(CTtotHF);
             }
         }//End vertex quality "if"
 
@@ -275,14 +276,14 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     /************************* TERMINAL MESSAGES  *******************************/
 
 #define BREAKLINE "------------------------------------------------------"
-    cout << BREAKLINE                                       << endl
+    cout << BREAKLINE << endl
          << "Number of events\t=\t" << nentries << " (100%)" << endl;
     // give absolute values and percentages
     for (unsigned short int ilevel = 0 ; ilevel < NLEVELS ; ilevel++)
     {
         cout << BREAKLINE << endl;
         for (unsigned short int iselection = 0 ; iselection < NSELECTIONS ; iselection++)
-            cout << "Number of " << levels[ilevel] << selections[iselection] << "\t="
+            cout << "Number of " << levels[ilevel] << selections[iselection] << "\t=\t"
                  << counters[levels[ilevel] + selections[iselection]]
                  << "\t(" << 100.*((double)counters[levels[ilevel] + selections[iselection]])/((double)nentries) << " %)" << endl;
     }
@@ -293,26 +294,10 @@ void TrackAnalysis::Loop(Long64_t maxentries)
         for (unsigned short int iselection = 0 ; iselection < NSELECTIONS ; iselection++)
             cout << "Ratio rec/gen of " << selections[iselection] << "\t=\t" << ((double)counters["RT" + selections[iselection]])/((double)counters["GT" + selections[iselection]]) << endl;
     }
-    cout << BREAKLINE << endl;
+    cout << BREAKLINE << endl
+         << "Note: you can get those value from the histograms that have been created." << endl
+         << BREAKLINE << endl;
 #undef BREAKLINE
-
-    //cout<<"Number of GenHFAnd = "<<NGAnd<<" ("<<100.0*NGAnd/nentries<<"%)"<<endl;
-    //cout<<"Number of GenHFXor = "<<NGXor<<" ("<<100.0*NGXor/nentries<<"%)"<<endl;
-    //cout<<"Number of GenHFOr  = "<<NGAnd+NGXor<<" ("<<100.0*(NGXor+NGAnd)/nentries<<"%)"<<endl;
-    //cout<<"Number of GenNoHF  = "<<NGNo<<" ("<<100.0*NGNo/nentries<<"%)"<<endl;
-    //cout<<"------------------------------------------------------"<<endl;
-    //cout<<"Number of RecHFAnd = "<<NRAnd<<" ("<<100.0*NRAnd/nentries<<"%)"<<endl;
-    //cout<<"Number of RecHFXor = "<<NRXor<<" ("<<100.0*NRXor/nentries<<"%)"<<endl;
-    //cout<<"Number of RecHFOr  = "<<NRAnd+NRXor<<" ("<<100.0*(NRAnd+NRXor)/nentries<<"%)"<<endl;
-    //cout<<"Number of RecNoHF  = "<<NRNo<<" ("<<100.0*NRNo/nentries<<"%)"<<endl;
-    //cout<<"------------------------------------------------------"<<endl;
-    //cout<<"--------------------- RATIOS -------------------------"<<endl;
-    //cout<<"-------------------- Rec/Gen -------------------------"<<endl;
-    //cout<<"And  -> "<<NRAnd/NGAnd<<endl;
-    //cout<<"Xor  -> "<<NRXor/NGXor<<endl;
-    //cout<<"Or   -> "<<(NRAnd+NRXor)/(NGAnd+NGXor)<<endl;
-    //cout<<"NoHF -> "<<NRNo/NGNo<<endl;
-    //cout<<"------------------------------------------------------"<<endl;
 
     /************************* SAVING *******************************/
 
@@ -328,7 +313,6 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     // (note: here we use an iterator to run over the map)
 #define WRITE(HISTOTYPE, HISTOMAP) for (map<TString,HISTOTYPE *>::iterator it_hist = HISTOMAP.begin() ; it_hist != HISTOMAP.end() ; it_hist++) it_hist->second->Write();
     WRITE(TH1D, hist1D);
-    //WRITE(TH2D, hist2D);
 #undef WRITE
     f->Close();
     cout << "File closed." << endl;
