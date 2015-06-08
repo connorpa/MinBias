@@ -18,10 +18,16 @@ void TrackAnalysis::Loop(Long64_t maxentries)
 
     /********************** CUTOFFS & CONSTANTS ***************************/
 
-    const double minpt  = 0.1, // GeV
+    const double minpt  = 0.0, // GeV
                  maxtracketa = 2.4, // no unit
                  minRHeta = 3,
-                 maxRHeta = 5;
+                 maxRHeta = 5,
+                 maxptsigma = 10E9,
+                 minrectracks = 0,
+                 maxdxysigma = 10E9,
+                 maxdzsigma = 10E9,
+                 maxvz = 10E9,
+                 maxvxy = 10E9 // cm
     const unsigned short int NETABIN = 4, // 4 eta bins of width 0.6 
                              NKIN = 12, 
                              NDIR = 4; 
@@ -121,11 +127,6 @@ void TrackAnalysis::Loop(Long64_t maxentries)
         hist1D["forward_energy"] = new TH1D ("forward_energy", "forward energy deposit;E/GeV;#entries", 100, 0, 100);
         
         
-    //TProfile for the 2D histograms but taking the mean value per bin in Y axis
-    profile["RT_dxy_errxy_VS_eta"] = new TProfile("RT_dxy_errxy_VS_eta","d_{xy}/#sigma_{xy} VS #eta",60,-3.0,3.0);
-    profile["RT_dz_errz_VS_eta"] = new TProfile("RT_dz_errz_VS_eta","d_{z}/#sigma_{z} VS #eta",60,-3.0,3.0);
-    profile["RT_errpt_pt_VS_eta"] = new TProfile("RT_errpt_pt_VS_eta","#sigma_{pt}/p_{t} VS #eta",60,-3.0,3.0);
-        
         
         // this macro is used to define 2d histogram using the 1d histogram corresponding to the axes
 #define DEFINE2DHIST(XNAME, YNAME, TITLE) \
@@ -139,6 +140,12 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     DEFINE2DHIST("rechit_energy", "RT_pt", "rechit energy deposit VS leading reconstructed transverse momentum;E/GeV;p_T/GeV;#entries");
     DEFINE2DHIST("rechit_energy", "RT_M" , "rechit energy deposit VS reconstructed multiplicity;E/GeV;M;#entries");
 #undef DEFINE2DHIST
+
+        //TProfile for the 2D histograms but taking the mean value per bin in Y axis
+        profile["RT_dxy_errxy_VS_eta"] = new TProfile("RT_dxy_errxy_VS_eta","d_{xy}/#sigma_{xy} VS #eta",60,-3.0,3.0);
+        profile["RT_dz_errz_VS_eta"] = new TProfile("RT_dz_errz_VS_eta","d_{z}/#sigma_{z} VS #eta",60,-3.0,3.0);
+        profile["RT_errpt_pt_VS_eta"] = new TProfile("RT_errpt_pt_VS_eta","#sigma_{pt}/p_{t} VS #eta",60,-3.0,3.0);
+        
 
     /******************* RUNNING OVER THE TREE ***********************/
 
@@ -241,8 +248,9 @@ void TrackAnalysis::Loop(Long64_t maxentries)
         }
     
         //Only if primary vertex has |z|<20cm & sqrt(x^2 + y^2)<0.2cm 
-        double RVdxy = sqrt(pow(RV.x->at(0),2)+pow(RV.y->at(0),2)); //Selection with primiry vertex (first one of the RV sample)
-        if(RV.z->at(0) > 20 || RVdxy > 0.2) continue;   // TODO: put cutoff in header!!
+        if(RV.z->at(0) > maxvz
+           || sqrt(pow(RV.x->at(0),2)+pow(RV.y->at(0),2)) > maxvxy) continue;   // TODO: put cutoff in header!!
+
         nselevents++;
         //--
 
@@ -257,16 +265,16 @@ void TrackAnalysis::Loop(Long64_t maxentries)
             // basic plots
             if (   fabs(RT.eta->at(itrack)) < maxtracketa
                 && fabs(RT.charge->at(itrack))==1    
-                && nrectracks > 3)
+                && nrectracks > minrectracks)
             {
                 
 
 
                 //Applying all quality criteria, since the variables of this histograms are not in the cuts
-                if(   RT.dxy->at(itrack)/RT.dxyError->at(itrack) < 3 
-                   && RT.dz->at(itrack)/RT.dzError->at(itrack) < 3
+                if(   RT.dxy->at(itrack)/RT.dxyError->at(itrack) < maxdxysigma
+                   && RT.dz->at(itrack)/RT.dzError->at(itrack) < maxdzsigma
                    && RT.pt ->at(itrack) > minpt
-                   && RT.ptError->at(itrack)/RT.pt->at(itrack) < 0.1)
+                   && RT.ptError->at(itrack)/RT.pt->at(itrack) < maxptsigma)
                 {           
                     hist1D["RT_phi"]       ->Fill(RT.phi->at(itrack));
                     hist1D["RT_eta"]       ->Fill(RT.eta->at(itrack));
@@ -276,9 +284,9 @@ void TrackAnalysis::Loop(Long64_t maxentries)
                
 
                 //Removing variable cuts dxy, sigma(xy) since this histogrmas depend on those variables
-                if(   RT.dz->at(itrack)/RT.dzError->at(itrack) < 3
+                if(   RT.dz->at(itrack)/RT.dzError->at(itrack) < maxdzsigma
                    && RT.pt ->at(itrack) > minpt
-                   && RT.ptError->at(itrack)/RT.pt->at(itrack) < 0.1)
+                   && RT.ptError->at(itrack)/RT.pt->at(itrack) < maxptsigma)
                 {           
                 hist1D["RT_dxy_errxy"] ->Fill(fabs(RT.dxy->at(itrack))/(RT.dxyError->at(itrack))); 
                 hist1D["RT_dxy"]       ->Fill(RT.dxy->at(itrack)); 
@@ -289,9 +297,9 @@ void TrackAnalysis::Loop(Long64_t maxentries)
 
 
                 //Removing variable cuts dz, sigma(z) since this histogrmas depend on those variables
-                if(   RT.dxy->at(itrack)/RT.dxyError->at(itrack) < 3 
+                if(   RT.dxy->at(itrack)/RT.dxyError->at(itrack) < maxdxysigma
                    && RT.pt ->at(itrack) > minpt
-                   && RT.ptError->at(itrack)/RT.pt->at(itrack) < 0.1)
+                   && RT.ptError->at(itrack)/RT.pt->at(itrack) < maxptsigma)
                 {           
                 hist1D["RT_dz_errz"]   ->Fill(fabs(RT.dz->at(itrack))/(RT.dzError->at(itrack))); 
                 hist1D["RT_dz"]        ->Fill(RT.dz->at(itrack)); 
@@ -301,9 +309,10 @@ void TrackAnalysis::Loop(Long64_t maxentries)
 
 
 
+
                 //Removing variable cuts pt, sigma(pt) since this histogrmas depend on those variables
-                if(   RT.dxy->at(itrack)/RT.dxyError->at(itrack) < 3 
-                   && RT.dz->at(itrack)/RT.dzError->at(itrack) < 3)
+                if(   RT.dxy->at(itrack)/RT.dxyError->at(itrack) < maxdxysigma
+                   && RT.dz->at(itrack)/RT.dzError->at(itrack) < maxdzsigma)
                 {           
                 hist1D["RT_pt_errpt"]  ->Fill((RT.ptError->at(itrack))/RT.pt->at(itrack)); 
                 hist1D["RT_pt" ]       ->Fill(RT.pt ->at(itrack));
