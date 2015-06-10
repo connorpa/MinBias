@@ -15,6 +15,11 @@ void TrackAnalysis::Loop(Long64_t maxentries)
 {
     if (fChain == 0x0) return;
 
+    // TODO: abort in case of MC exclusive study
+    // if (!kContainsGenLevel) continue;
+
+    cout << "This analyser is intended for..." /* TODO: give here a description of the analyser */ << endl;
+
     /********************** CUTOFFS & CONSTANTS ***************************/
 
     // TODO: define cutoffs here
@@ -33,10 +38,10 @@ void TrackAnalysis::Loop(Long64_t maxentries)
     // Remember: TH1D * h = new TH1D (name, title, nbins, xlow, xup);
     const unsigned short int NKIN = 4, // KINematics, plus multiplicity
                              NDIR = 3; // DIRections
-    const TH1D * proto_tracks[NKIN] = { new const TH1D ("pt" , "transverse momentum;p_T/GeV;#entries",   50,     0,   5),
-                                        new const TH1D ("eta", "pseudorapidity     ;#eta   ;#entries",   50,  -2.5,  2.5),
-                                        new const TH1D ("phi", "azimuthal angle    ;#phi   ;#entries",   20,   -PI,   PI),
-                                        new const TH1D ("M"  , "multiplicity       ;M      ;#enitres",  300,     0,  300)},
+    const TH1D * proto_tracks[NKIN] = { new const TH1D ("pt" , "transverse momentum;p_T/GeV;#entries",   50,     0,    5),
+                                        new const TH1D ("eta", "pseudorapidity;#eta;#entries"        ,   50,  -2.5,  2.5),
+                                        new const TH1D ("phi", "azimuthal angle;#phi;#entries"       ,   20,   -PI,   PI),
+                                        new const TH1D ("M"  , "multiplicity;M;#enitres"             ,  300,     0,  300)},
                * proto_vertices[NDIR]   = { new const TH1D ("x", "x-position;x/mm;#entries", 100,  0.2, 0.4),
                                             new const TH1D ("y", "y-position;x/mm;#entries", 100,  0.3, 0.5),
                                             new const TH1D ("z", "z-position;x/mm;#entries", 100,  -20, 20) };
