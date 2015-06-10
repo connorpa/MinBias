@@ -16,6 +16,9 @@ process.TFileService = cms.Service("TFileService",
 )
 
 # TODO: adapt the input tags according to the content of the input files
+# recall: in the TTree, there is by convention (?) a 4-component name: [cpptype]_[label]_[instance]_[processname]
+# where the first is the CMSSW type to be used to read the object (including the possible namespace),
+# and the three other are the options of edm::InputTag (std::string const &label, std::string const &instance, std::string const &processName="")
 process.minbiasdata = cms.EDAnalyzer('TreeProducer'
     , StoreBeamSpot        = cms.bool(True ) , BeamSpot        = cms.InputTag("offlineBeamSpot"       , ""             , "RECO")
     , StoreLumiProducer    = cms.bool(False) , LumiProducer    = cms.InputTag("lumiProducer"          , ""             , ""    )
@@ -28,7 +31,15 @@ process.minbiasdata = cms.EDAnalyzer('TreeProducer'
     , StoreHFRecHit        = cms.bool(True ) , HFRecHit        = cms.InputTag("hfreco"                , ""             , "RECO")
     , StoreCaloTower       = cms.bool(True ) , CaloTower       = cms.InputTag("towerMaker"            , ""             , "RECO")
     , StoreGenParticles    = cms.bool(True ) , GenParticles    = cms.InputTag("genParticles"          , ""             , "HLT" )
+
+    , StoreL1GT            = cms.bool(True ) , L1GT            = cms.InputTag("gtDigis"               , ""             , "RECO")
+                                             , L1TT_requested  = cms.vstring('L1Tech_BSC_minBias_threshold1.v0',
+                                                                             'L1Tech_BSC_minBias_threshold2.v0',
+                                                                             'L1Tech_BPTX_plus_AND_minus.v0')
+    , StoreHLT             = cms.bool(True ) , HLT             = cms.InputTag("TriggerResults"        , ""             , "HLT" )
+                                             , HLT_requested   = cms.vstring('HLT_ZeroBias_v1')
 )
+
 
 
 process.p = cms.Path(process.minbiasdata)
