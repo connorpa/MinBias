@@ -28,7 +28,7 @@ void TrackAnalysis::Loop(Long64_t maxentries)
 
     // TODO: define cutoffs here
     const double minpt  = 0.0, // GeV
-                 maxtracketa = 1.0, // no unit
+                 maxtracketa = 2.4, // no unit
                  maxdR = 0.1; 
                  //maxdpt = 0; // TODO: find the right value, but useless without magnetic field
                  //minRHeta = 3,

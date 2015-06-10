@@ -12,6 +12,13 @@ TrackAnalysisTemplate.o: TrackAnalysisTemplate.cc TrackAnalysis.h
 	${CXX} -c $^ ${CFLAGS}
 
 
+DR.exe: TrackAnalysisDR.o
+	${CXX} -o $@ $^ ${LIBS} -Wl,-rpath=${PWD}
+
+TrackAnalysisDR.o: TrackAnalysisDR.cc TrackAnalysis.h
+	${CXX} -c $^ ${CFLAGS}
+
+
 ControlPlots.exe: TrackAnalysisControlPlots.o
 	${CXX} -o $@ $^ ${LIBS} -Wl,-rpath=${PWD}
 
