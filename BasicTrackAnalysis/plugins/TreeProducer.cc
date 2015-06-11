@@ -129,7 +129,7 @@ private:
     const bool StoreBeamSpot        ;  edm::InputTag BeamSpotInputTag       ;  MyBeamSpot      BS;
     const bool StoreLumiProducer    ;  edm::InputTag LumiProducerInputTag   ;  MyEvtId         EI;
     const bool StorePrimaryVertices ;  edm::InputTag PrimaryVerticesInputTag;  MyRecoVertices  RV;
-    const bool StoreGeneralTracks   ;  edm::InputTag GeneralTracksInputTag  ;  MyRecoTracks    RT;
+    const bool StoreGeneralTracks   ;  edm::InputTag GeneralTracksInputTag  ;  MyRecoTracks    RT, VRT;
     const bool StoreEBRecHit        ;  edm::InputTag EBRecHitInputTag       ;  MyRecHit        RH_EB;
     const bool StoreEERecHit        ;  edm::InputTag EERecHitInputTag       ;  MyRecHit        RH_EE;
     const bool StoreHBHERecHit      ;  edm::InputTag HBHERecHitInputTag     ;  MyRecHit        RH_HBHE;
@@ -229,17 +229,43 @@ TreeProducer::TreeProducer(const edm::ParameterSet& iConfig)
     // RECONSTRUCTED VERTEX TODO: leafs
     if (StorePrimaryVertices)
     {
-        tree->Branch("RecoVertices.x"       , &RV.x       ); 
-        tree->Branch("RecoVertices.y"       , &RV.y       ); 
-        tree->Branch("RecoVertices.z"       , &RV.z       ); 
-        tree->Branch("RecoVertices.xError"  , &RV.xError  );
-        tree->Branch("RecoVertices.yError"  , &RV.yError  );
-        tree->Branch("RecoVertices.zError"  , &RV.zError  );
-        tree->Branch("RecoVertices.chi2"    , &RV.chi2    );
-        tree->Branch("RecoVertices.ndof"    , &RV.ndof    );
-        tree->Branch("RecoVertices.isFake"  , &RV.isFake  );
-        tree->Branch("RecoVertices.isValid" , &RV.isValid );
-        tree->Branch("RecoVertices.nTracks" , &RV.nTracks );
+        tree->Branch("RecoVertices.x"           , &RV.x           ); 
+        tree->Branch("RecoVertices.y"           , &RV.y           ); 
+        tree->Branch("RecoVertices.z"           , &RV.z           ); 
+        tree->Branch("RecoVertices.xError"      , &RV.xError      );
+        tree->Branch("RecoVertices.yError"      , &RV.yError      );
+        tree->Branch("RecoVertices.zError"      , &RV.zError      );
+        tree->Branch("RecoVertices.chi2"        , &RV.chi2        );
+        tree->Branch("RecoVertices.ndof"        , &RV.ndof        );
+        tree->Branch("RecoVertices.isFake"      , &RV.isFake      );
+        tree->Branch("RecoVertices.isValid"     , &RV.isValid     );
+        tree->Branch("RecoVertices.tracks_begin", &RV.tracks_begin);
+        tree->Branch("RecoVertices.tracks_end"  , &RV.tracks_end  );
+        tree->Branch("RecoVertices.tracksSize"  , &RV.tracksSize  );
+        tree->Branch("RecoVertices.nTracks"     , &RV.nTracks     );
+        tree->Branch("VertexAssociatedRecoTracks.pt"               , &VRT.pt               ); 
+        tree->Branch("VertexAssociatedRecoTracks.eta"              , &VRT.eta              ); 
+        tree->Branch("VertexAssociatedRecoTracks.phi"              , &VRT.phi              ); 
+        tree->Branch("VertexAssociatedRecoTracks.ptError"          , &VRT.ptError          ); 
+        tree->Branch("VertexAssociatedRecoTracks.etaError"         , &VRT.etaError         ); 
+        tree->Branch("VertexAssociatedRecoTracks.phiError"         , &VRT.phiError         ); 
+        tree->Branch("VertexAssociatedRecoTracks.dxy"              , &VRT.dxy              );
+        tree->Branch("VertexAssociatedRecoTracks.dxyError"         , &VRT.dxyError         );
+        tree->Branch("VertexAssociatedRecoTracks.dsz"              , &VRT.dsz              );
+        tree->Branch("VertexAssociatedRecoTracks.dszError"         , &VRT.dszError         );
+        tree->Branch("VertexAssociatedRecoTracks.dz"               , &VRT.dz               );
+        tree->Branch("VertexAssociatedRecoTracks.dzError"          , &VRT.dzError          );
+        tree->Branch("VertexAssociatedRecoTracks.charge"           , &VRT.charge           ); 
+        tree->Branch("VertexAssociatedRecoTracks.chi2"             , &VRT.chi2             ); 
+        tree->Branch("VertexAssociatedRecoTracks.ndof"             , &VRT.ndof             ); 
+        tree->Branch("VertexAssociatedRecoTracks.vx"               , &VRT.vx               );
+        tree->Branch("VertexAssociatedRecoTracks.vy"               , &VRT.vy               );
+        tree->Branch("VertexAssociatedRecoTracks.vz"               , &VRT.vz               );
+        tree->Branch("VertexAssociatedRecoTracks.ivertex"          , &VRT.ivertex          );
+        tree->Branch("VertexAssociatedRecoTracks.trackWeight"      , &VRT.trackWeight      );
+        tree->Branch("VertexAssociatedRecoTracks.quality"          , &VRT.quality          );
+        tree->Branch("VertexAssociatedRecoTracks.numberOfValidHits", &VRT.numberOfValidHits);
+        tree->Branch("VertexAssociatedRecoTracks.numberOfLostHits" , &VRT.numberOfLostHits );
     }
                      
     // RECONSTRUCTED TRACKS TODO: leafs
@@ -263,30 +289,42 @@ TreeProducer::TreeProducer(const edm::ParameterSet& iConfig)
         tree->Branch("RecoTracks.vx"               , &RT.vx               );
         tree->Branch("RecoTracks.vy"               , &RT.vy               );
         tree->Branch("RecoTracks.vz"               , &RT.vz               );
+        tree->Branch("RecoTracks.ivertex"          , &RT.ivertex          ); // TODO: avoid them as not associated to a given vertex...
+        tree->Branch("RecoTracks.trackWeight"      , &RT.trackWeight      ); // TODO: avoid them as not associated to a given vertex...
         tree->Branch("RecoTracks.quality"          , &RT.quality          );
         tree->Branch("RecoTracks.numberOfValidHits", &RT.numberOfValidHits);
         tree->Branch("RecoTracks.numberOfLostHits" , &RT.numberOfLostHits );
     }
 
-    // ECAL ENDCAPS REC HIT TODO: leafs
-    if (StoreEERecHit)
-        tree->Branch("EERecHit.energy"    , &RH_EE.energy);
+    // THE 5 RECHITS
+#define DEFINERECHITBRANCH(Shortname)\
+    if (Store##Shortname##RecHit)\
+        tree->Branch(#Shortname "RecHit.energy", &RH_##Shortname.energy);
+    DEFINERECHITBRANCH(EE);
+    DEFINERECHITBRANCH(EB);
+    DEFINERECHITBRANCH(HBHE);
+    DEFINERECHITBRANCH(HF);
+    DEFINERECHITBRANCH(HO);
+#undef DEFINERECHITBRANCH
+    //// ECAL ENDCAPS REC HIT TODO: leafs
+    //if (StoreEERecHit)
+    //    tree->Branch("EERecHit.energy"    , &RH_EE.energy);
 
-    // REC HIT TODO: leafs
-    if (StoreEBRecHit)
-        tree->Branch("EBRecHit.energy"    , &RH_EB.energy);
+    //// REC HIT TODO: leafs
+    //if (StoreEBRecHit)
+    //    tree->Branch("EBRecHit.energy"    , &RH_EB.energy);
 
-    // REC HIT TODO: leafs
-    if (StoreHBHERecHit)
-        tree->Branch("HBHERecHit.energy"  , &RH_HBHE.energy);
+    //// REC HIT TODO: leafs
+    //if (StoreHBHERecHit)
+    //    tree->Branch("HBHERecHit.energy"  , &RH_HBHE.energy);
 
-    // REC HIT TODO: leafs
-    if (StoreHORecHit)
-        tree->Branch("HORecHit.energy"    , &RH_HO.energy);
+    //// REC HIT TODO: leafs
+    //if (StoreHORecHit)
+    //    tree->Branch("HORecHit.energy"    , &RH_HO.energy);
 
-    // REC HIT TODO: leafs
-    if (StoreHFRecHit)
-        tree->Branch("HFRecHit.energy"    , &RH_HF.energy);
+    //// REC HIT TODO: leafs
+    //if (StoreHFRecHit)
+    //    tree->Branch("HFRecHit.energy"    , &RH_HF.energy);
 
     // CALO TOWER TODO: leafs
     if (StoreCaloTower)
@@ -384,59 +422,102 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     // + SIMULATED VERTEX -> TODO: implement link between tracks and vertices
     if (StoreGenParticles)
     {
-        edm::Handle<reco::GenParticleCollection> genparticlescollection;
-        iEvent.getByLabel(GenParticlesInputTag, genparticlescollection);
+        edm::Handle<reco::GenParticleCollection> genparticlescollection; // declaration
+        iEvent.getByLabel(GenParticlesInputTag,  genparticlescollection);// retrieving value by reference
 
         GT.clear();
         GV.clear();
-        for (unsigned int itrack = 0 ; itrack < genparticlescollection->size() ; itrack++)
+        //for (unsigned int itrack = 0 ; itrack < genparticlescollection->size() ; itrack++)
+        for (reco::GenParticleCollection::const_iterator genparticle  = genparticlescollection->begin() ;
+                                                         genparticle != genparticlescollection->end()   ; ++genparticle)
         {
-            GT.energy->push_back( (genparticlescollection->at(itrack)).energy() );
-            GT.pt    ->push_back( (genparticlescollection->at(itrack)).pt    () ); 
-            GT.eta   ->push_back( (genparticlescollection->at(itrack)).eta   () );
-            GT.phi   ->push_back( (genparticlescollection->at(itrack)).phi   () );
-            GT.charge->push_back( (genparticlescollection->at(itrack)).charge() );
-            GT.status->push_back( (genparticlescollection->at(itrack)).status() );
-            GT.pdgId ->push_back( (genparticlescollection->at(itrack)).pdgId () );
+            GT.energy->push_back( genparticle->energy() );
+            GT.pt    ->push_back( genparticle->pt    () ); 
+            GT.eta   ->push_back( genparticle->eta   () );
+            GT.phi   ->push_back( genparticle->phi   () );
+            GT.charge->push_back( genparticle->charge() );
+            GT.status->push_back( genparticle->status() );
+            GT.pdgId ->push_back( genparticle->pdgId () );
 
-            math::XYZPoint vertex = (genparticlescollection->at(2)).vertex();
+            const math::XYZPoint vertex = genparticle->vertex();// TODO: redo this implementation (not optimal)
             if (GV.x->size() == 0
                 || (   vertex.X() != GV.x->back()
                     || vertex.Y() != GV.y->back()
                     || vertex.Z() != GV.z->back()))
             {
-                GV.x      ->push_back( vertex.X      () );
-                GV.y      ->push_back( vertex.Y      () );
-                GV.z      ->push_back( vertex.Z      () );
+                GV.x->push_back( vertex.X() );
+                GV.y->push_back( vertex.Y() );
+                GV.z->push_back( vertex.Z() );
             }
         }
     }
 
     // RECONSTRUCTED VERTEX
-    if (StorePrimaryVertices) // TODO: implement link to tracks
+    if (StorePrimaryVertices)
     {
-        edm::Handle<reco::VertexCollection> generalverticescollection; // typedef std::vector<Track> TrackCollection; 
+        edm::Handle<reco::VertexCollection> generalverticescollection; // typedef std::vector<Vertex> VertexCollection; 
         iEvent.getByLabel(PrimaryVerticesInputTag,generalverticescollection);
 
         RV.clear();
-        for (unsigned int ivertex = 0 ; ivertex < generalverticescollection->size() ; ivertex++)
+        VRT.clear();
+        unsigned int ivertex = 0, // TODO: isn't there already some counter defined?
+                     itrack = 0;
+        for (reco::VertexCollection::const_iterator vertex  = generalverticescollection->begin() ; 
+                                                    vertex != generalverticescollection->end  () ; ++vertex)
         {
-            RV.x      ->push_back( (generalverticescollection->at(ivertex)).x       () );
-            RV.y      ->push_back( (generalverticescollection->at(ivertex)).y       () );
-            RV.z      ->push_back( (generalverticescollection->at(ivertex)).z       () );
-            RV.xError ->push_back( (generalverticescollection->at(ivertex)).xError  () );
-            RV.yError ->push_back( (generalverticescollection->at(ivertex)).yError  () );
-            RV.zError ->push_back( (generalverticescollection->at(ivertex)).zError  () );
-            RV.chi2   ->push_back( (generalverticescollection->at(ivertex)).chi2    () );
-            RV.ndof   ->push_back( (generalverticescollection->at(ivertex)).ndof    () );
-            RV.isFake ->push_back( (generalverticescollection->at(ivertex)).isFake  () );
-            RV.isValid->push_back( (generalverticescollection->at(ivertex)).isValid () );
-            RV.nTracks->push_back( (generalverticescollection->at(ivertex)).nTracks () );
+            RV.x      ->push_back( vertex->x       () );
+            RV.y      ->push_back( vertex->y       () );
+            RV.z      ->push_back( vertex->z       () );
+            RV.xError ->push_back( vertex->xError  () );
+            RV.yError ->push_back( vertex->yError  () );
+            RV.zError ->push_back( vertex->zError  () );
+            RV.chi2   ->push_back( vertex->chi2    () );
+            RV.ndof   ->push_back( vertex->ndof    () );
+            RV.isFake ->push_back( vertex->isFake  () );
+            RV.isValid->push_back( vertex->isValid () );
+            RV.nTracks->push_back( vertex->nTracks () );
+
+            RV.tracks_begin->push_back( itrack              );
+            RV.tracksSize  ->push_back( vertex->tracksSize());
+            itrack += vertex->tracksSize();
+            RV.tracks_end  ->push_back( itrack              );
+
+            for (reco::Vertex::trackRef_iterator track = vertex->tracks_begin(); track != vertex->tracks_end() ; ++track)
+            {
+                VRT.ivertex          ->push_back( ivertex );
+                VRT.trackWeight      ->push_back( vertex->trackWeight(*track) );
+                VRT.pt               ->push_back( (*track)->pt               () );  // I tried track.pt() but it does not work... weird...
+                VRT.eta              ->push_back( (*track)->eta              () );
+                VRT.phi              ->push_back( (*track)->phi              () );
+                VRT.ptError          ->push_back( (*track)->ptError          () ); 
+                VRT.etaError         ->push_back( (*track)->etaError         () );
+                VRT.phiError         ->push_back( (*track)->phiError         () );
+                VRT.dxy              ->push_back( (*track)->dxy              () );
+                VRT.dxyError         ->push_back( (*track)->dxyError         () );
+                VRT.dz               ->push_back( (*track)->dz               () );
+                VRT.dzError          ->push_back( (*track)->dzError          () );
+                VRT.dsz              ->push_back( (*track)->dsz              () );
+                VRT.dszError         ->push_back( (*track)->dszError         () );
+                VRT.charge           ->push_back( (*track)->charge           () );
+                VRT.chi2             ->push_back( (*track)->chi2             () );
+                VRT.ndof             ->push_back( (*track)->ndof             () );
+                VRT.vx               ->push_back( (*track)->vx               () );
+                VRT.vy               ->push_back( (*track)->vy               () );
+                VRT.vz               ->push_back( (*track)->vz               () );
+                VRT.numberOfValidHits->push_back( (*track)->numberOfValidHits() );
+                VRT.numberOfLostHits ->push_back( (*track)->numberOfLostHits () );
+                using namespace reco; // to shorten the access to the different quality criteria
+                     if ((*track)->quality(TrackBase::highPurity)) VRT.quality->push_back( (TrackBase::highPurity  ) );
+                else if ((*track)->quality(TrackBase::tight     )) VRT.quality->push_back( (TrackBase::tight       ) );
+                else if ((*track)->quality(TrackBase::loose     )) VRT.quality->push_back( (TrackBase::loose       ) );
+                else                                               VRT.quality->push_back( (TrackBase::undefQuality) );
+            }
+            ivertex++;
         }
     }
 
     // RECONSTRUCTED TRACKS
-    if (StoreGeneralTracks)
+    if (StoreGeneralTracks) // TODO: check redundancy between RT and VRT
     {
         edm::Handle<reco::TrackCollection> trackcollection; // typedef std::vector<Track> TrackCollection; 
         iEvent.getByLabel(GeneralTracksInputTag,trackcollection);
@@ -444,87 +525,108 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         RT.clear();
         for (unsigned int itrack = 0 ; itrack < trackcollection->size() ; itrack++)
         {
-            RT.pt               ->push_back( (trackcollection->at(itrack)).pt               () ); 
-            RT.eta              ->push_back( (trackcollection->at(itrack)).eta              () );
-            RT.phi              ->push_back( (trackcollection->at(itrack)).phi              () );
-            RT.ptError          ->push_back( (trackcollection->at(itrack)).ptError          () ); 
-            RT.etaError         ->push_back( (trackcollection->at(itrack)).etaError         () );
-            RT.phiError         ->push_back( (trackcollection->at(itrack)).phiError         () );
-            RT.dxy              ->push_back( (trackcollection->at(itrack)).dxy              () );
-            RT.dxyError         ->push_back( (trackcollection->at(itrack)).dxyError         () );
-            RT.dz               ->push_back( (trackcollection->at(itrack)).dz               () );
-            RT.dzError          ->push_back( (trackcollection->at(itrack)).dzError          () );
-            RT.dsz              ->push_back( (trackcollection->at(itrack)).dsz              () );
-            RT.dszError         ->push_back( (trackcollection->at(itrack)).dszError         () );
-            RT.charge           ->push_back( (trackcollection->at(itrack)).charge           () );
-            RT.chi2             ->push_back( (trackcollection->at(itrack)).chi2             () );
-            RT.ndof             ->push_back( (trackcollection->at(itrack)).ndof             () );
-            RT.vx               ->push_back( (trackcollection->at(itrack)).vx               () );
-            RT.vy               ->push_back( (trackcollection->at(itrack)).vy               () );
-            RT.vz               ->push_back( (trackcollection->at(itrack)).vz               () );
-            RT.numberOfValidHits->push_back( (trackcollection->at(itrack)).numberOfValidHits() );
-            RT.numberOfLostHits ->push_back( (trackcollection->at(itrack)).numberOfLostHits () );
-                 if ((trackcollection->at(itrack)).quality(reco::TrackBase::highPurity)) RT.quality->push_back( (reco::TrackBase::highPurity  ) );
-            else if ((trackcollection->at(itrack)).quality(reco::TrackBase::tight     )) RT.quality->push_back( (reco::TrackBase::tight       ) );
-            else if ((trackcollection->at(itrack)).quality(reco::TrackBase::loose     )) RT.quality->push_back( (reco::TrackBase::loose       ) );
-            else                                                                         RT.quality->push_back( (reco::TrackBase::undefQuality) );
+            const reco::Track track = trackcollection->at(itrack);
+            //RT.ivertex->push_back(0); // TODO: find a better solution (as well as for trackWeight
+            RT.pt               ->push_back( track.pt               () ); 
+            RT.eta              ->push_back( track.eta              () );
+            RT.phi              ->push_back( track.phi              () );
+            RT.ptError          ->push_back( track.ptError          () ); 
+            RT.etaError         ->push_back( track.etaError         () );
+            RT.phiError         ->push_back( track.phiError         () );
+            RT.dxy              ->push_back( track.dxy              () );
+            RT.dxyError         ->push_back( track.dxyError         () );
+            RT.dz               ->push_back( track.dz               () );
+            RT.dzError          ->push_back( track.dzError          () );
+            RT.dsz              ->push_back( track.dsz              () );
+            RT.dszError         ->push_back( track.dszError         () );
+            RT.charge           ->push_back( track.charge           () );
+            RT.chi2             ->push_back( track.chi2             () );
+            RT.ndof             ->push_back( track.ndof             () );
+            RT.vx               ->push_back( track.vx               () );
+            RT.vy               ->push_back( track.vy               () );
+            RT.vz               ->push_back( track.vz               () );
+            RT.numberOfValidHits->push_back( track.numberOfValidHits() );
+            RT.numberOfLostHits ->push_back( track.numberOfLostHits () );
+            using namespace reco;
+                 if (track.quality(TrackBase::highPurity)) RT.quality->push_back( (TrackBase::highPurity  ) );
+            else if (track.quality(TrackBase::tight     )) RT.quality->push_back( (TrackBase::tight       ) );
+            else if (track.quality(TrackBase::loose     )) RT.quality->push_back( (TrackBase::loose       ) );
+            else                                           RT.quality->push_back( (TrackBase::undefQuality) );
         }
     }
 
-    // EE REC HIT
-    if (StoreEERecHit)
-    {
-        edm::Handle<EcalRecHitCollection> eerechitcollection;
-        iEvent.getByLabel(EERecHitInputTag,eerechitcollection);
-
-        RH_EE.clear();
-        for(EERecHitCollection::const_iterator it_rechit = eerechitcollection->begin(); it_rechit != eerechitcollection->end(); it_rechit++)
-            RH_EE.energy->push_back(it_rechit->energy());
+    // THE 5 REC-HITS
+#define FILLRECHIT(Shortname,CollectionType)\
+    if (Store##Shortname##RecHit)\
+    {\
+        edm::Handle<CollectionType##RecHitCollection> coll;\
+        iEvent.getByLabel(Shortname##RecHitInputTag, coll);\
+        RH_##Shortname.clear();\
+        for (CollectionType##RecHitCollection::const_iterator it = coll->begin() ; it != coll->end() ; it++)\
+            RH_##Shortname.energy->push_back(it->energy());\
     }
+    FILLRECHIT(EE,Ecal);
+    FILLRECHIT(EB,Ecal);
+    FILLRECHIT(HBHE,HBHE);
+    FILLRECHIT(HO,HO);
+    FILLRECHIT(HF,HF);
+#undef FILLRECHIT
 
-    // EB REC HIT
-    if (StoreEBRecHit)
-    {
-        edm::Handle<EcalRecHitCollection> ebrechitcollection;
-        iEvent.getByLabel(EBRecHitInputTag,ebrechitcollection);
 
-        RH_EB.clear();
-        for(EBRecHitCollection::const_iterator it_rechit = ebrechitcollection->begin(); it_rechit != ebrechitcollection->end(); it_rechit++)
-            RH_EB.energy->push_back(it_rechit->energy());
-    }
+    //// EE REC HIT
+    //if (StoreEERecHit)
+    //{
+    //    edm::Handle<EcalRecHitCollection> eerechitcollection;
+    //    iEvent.getByLabel(EERecHitInputTag,eerechitcollection);
 
-    // HBHE REC HIT
-    if (StoreHBHERecHit)
-    {
-        edm::Handle<HBHERecHitCollection> hbherechitcollection;
-        iEvent.getByLabel(HBHERecHitInputTag,hbherechitcollection);
+    //    RH_EE.clear();
+    //    for(EERecHitCollection::const_iterator it_rechit = eerechitcollection->begin(); it_rechit != eerechitcollection->end(); it_rechit++)
+    //        RH_EE.energy->push_back(it_rechit->energy());
+    //}
 
-        RH_HBHE.clear();
-        for(HBHERecHitCollection::const_iterator it_rechit = hbherechitcollection->begin(); it_rechit != hbherechitcollection->end(); it_rechit++)
-            RH_HBHE.energy->push_back(it_rechit->energy());
-    }
+    //// EB REC HIT
+    //if (StoreEBRecHit)
+    //{
+    //    edm::Handle<EcalRecHitCollection> ebrechitcollection;
+    //    iEvent.getByLabel(EBRecHitInputTag,ebrechitcollection);
 
-    // HO REC HIT
-    if (StoreHORecHit)
-    {
-        edm::Handle<HORecHitCollection> horechitcollection;
-        iEvent.getByLabel(HORecHitInputTag,horechitcollection);
+    //    RH_EB.clear();
+    //    for(EBRecHitCollection::const_iterator it_rechit = ebrechitcollection->begin(); it_rechit != ebrechitcollection->end(); it_rechit++)
+    //        RH_EB.energy->push_back(it_rechit->energy());
+    //}
 
-        RH_HO.clear();
-        for(HORecHitCollection::const_iterator it_rechit = horechitcollection->begin(); it_rechit != horechitcollection->end(); it_rechit++)
-            RH_HO.energy->push_back(it_rechit->energy());
-    }
+    //// HBHE REC HIT
+    //if (StoreHBHERecHit)
+    //{
+    //    edm::Handle<HBHERecHitCollection> hbherechitcollection;
+    //    iEvent.getByLabel(HBHERecHitInputTag,hbherechitcollection);
 
-    // HF REC HIT
-    if (StoreHFRecHit)
-    {
-        edm::Handle<HFRecHitCollection> hfrechitcollection;
-        iEvent.getByLabel(HFRecHitInputTag,hfrechitcollection);
+    //    RH_HBHE.clear();
+    //    for(HBHERecHitCollection::const_iterator it_rechit = hbherechitcollection->begin(); it_rechit != hbherechitcollection->end(); it_rechit++)
+    //        RH_HBHE.energy->push_back(it_rechit->energy());
+    //}
 
-        RH_HF.clear();
-        for(HFRecHitCollection::const_iterator it_rechit = hfrechitcollection->begin(); it_rechit != hfrechitcollection->end(); it_rechit++)
-            RH_HF.energy->push_back(it_rechit->energy());
-    }
+    //// HO REC HIT
+    //if (StoreHORecHit)
+    //{
+    //    edm::Handle<HORecHitCollection> horechitcollection;
+    //    iEvent.getByLabel(HORecHitInputTag,horechitcollection);
+
+    //    RH_HO.clear();
+    //    for(HORecHitCollection::const_iterator it_rechit = horechitcollection->begin(); it_rechit != horechitcollection->end(); it_rechit++)
+    //        RH_HO.energy->push_back(it_rechit->energy());
+    //}
+
+    //// HF REC HIT
+    //if (StoreHFRecHit)
+    //{
+    //    edm::Handle<HFRecHitCollection> hfrechitcollection;
+    //    iEvent.getByLabel(HFRecHitInputTag,hfrechitcollection);
+
+    //    RH_HF.clear();
+    //    for(HFRecHitCollection::const_iterator it_rechit = hfrechitcollection->begin(); it_rechit != hfrechitcollection->end(); it_rechit++)
+    //        RH_HF.energy->push_back(it_rechit->energy());
+    //}
 
     // CALO TOWER
     if (StoreCaloTower)
@@ -560,9 +662,7 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         iEvent.getByLabel(L1GTInputTag, gtReadoutRecord);
 
         for(unsigned int i = 0; i < L1T.bit->size(); ++i)
-        {
             L1T.decision->push_back(gtReadoutRecord->technicalTriggerWord().at(L1T.bit->at(i)));
-        }
     }
 
     // HIGH LEVEL TRIGGER
@@ -577,17 +677,17 @@ void TreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
         //const edm::TriggerNames& TrigName = iEvent.triggerNames(*TrigResult); // TODO: ask Benoit if this is needed
 
-        for(unsigned int itrig =0; itrig < HLT.index->size(); ++itrig) {
-
+        for(unsigned int itrig =0; itrig < HLT.index->size(); ++itrig)
+        {
             HLT.decision->push_back(TrigResult->accept(HLT.index->at(itrig)));
-
             const std::pair<int,int> prescales(HLTconfig.prescaleValues(iEvent,iSetup,HLT.name->at(itrig)));
             HLT.L1prescale ->push_back(prescales.first );
             HLT.HLTprescale->push_back(prescales.second);
         }
     }
 
-    // TREE FILLING
+
+    //-- TREE FILLING
     tree->Fill();
 }
 

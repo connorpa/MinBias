@@ -1,3 +1,5 @@
+// TODO: for the time being, as a full implementation with dictionaries has not been done yet,
+//       each pointer to a vector must be manually linked to a branch in the TreeProducer.cc
 #include <vector>
 #include <string>
 #include <Rtypes.h>
@@ -40,25 +42,24 @@ struct MyEvtId
                 IstLumiPerBX;   
 };
 
+// VERTICES
 struct MyGenVertices
 {
     std::vector<Double_t> * x,
                           * y,
                           * z;
 
-    // TODO: include iterator or ref (or anything of the kind) to the tracks
-
     MyGenVertices ()
-        :   x      (0x0)
-        ,   y      (0x0)
-        ,   z      (0x0)
+        :   x(0x0)
+        ,   y(0x0)
+        ,   z(0x0)
     {}
 
     void clear ()
     {
-        x      ->clear();
-        y      ->clear();
-        z      ->clear();
+        x->clear();
+        y->clear();
+        z->clear();
     }
 };
 
@@ -71,31 +72,40 @@ struct MyRecoVertices : public MyGenVertices
                           * ndof    ;
     std::vector<Bool_t> * isFake ,
                         * isValid;
-    std::vector<UInt_t> * nTracks;
+    std::vector<UInt_t> * tracks_begin,
+                        * tracks_end  ,
+                        * tracksSize  ,
+                        * nTracks     ;
 
     MyRecoVertices ()
         :   MyGenVertices()
-        ,   xError  (0x0)
-        ,   yError  (0x0)
-        ,   zError  (0x0)
-        ,   chi2    (0x0)
-        ,   ndof    (0x0)
-        ,   isFake  (0x0)
-        ,   isValid (0x0)
-        ,   nTracks (0x0)
+        ,   xError       (0x0)
+        ,   yError       (0x0)
+        ,   zError       (0x0)
+        ,   chi2         (0x0)
+        ,   ndof         (0x0)
+        ,   isFake       (0x0)
+        ,   isValid      (0x0)
+        ,   tracks_begin (0x0)
+        ,   tracks_end   (0x0)
+        ,   tracksSize   (0x0)
+        ,   nTracks      (0x0)
     {}
 
     void clear ()
     {
         MyGenVertices::clear();
-        xError ->clear();
-        yError ->clear();
-        zError ->clear();
-        chi2   ->clear();
-        ndof   ->clear();
-        isFake ->clear();
-        isValid->clear();
-        nTracks->clear();
+        xError      ->clear();
+        yError      ->clear();
+        zError      ->clear();
+        chi2        ->clear();
+        ndof        ->clear();
+        isFake      ->clear();
+        isValid     ->clear();
+        tracks_begin->clear();
+        tracks_end  ->clear();
+        tracksSize  ->clear();
+        nTracks     ->clear();
     }
 };
 
@@ -157,7 +167,9 @@ struct MyRecoTracks : public MyTrackBase
                           * ndof    ,
                           * vx      ,
                           * vy      ,
-                          * vz      ;
+                          * vz      ,
+                          * ivertex ;
+    std::vector<Float_t> * trackWeight;
     std::vector<Int_t> * quality          ,
                        * numberOfValidHits,
                        * numberOfLostHits ;
@@ -178,6 +190,8 @@ struct MyRecoTracks : public MyTrackBase
         ,   vx               (0x0)
         ,   vy               (0x0)
         ,   vz               (0x0)
+        ,   ivertex          (0x0)
+        ,   trackWeight      (0x0)
         ,   quality          (0x0)
         ,   numberOfValidHits(0x0)
         ,   numberOfLostHits (0x0)
@@ -200,6 +214,8 @@ struct MyRecoTracks : public MyTrackBase
         vx               ->clear();
         vy               ->clear();
         vz               ->clear();
+        ivertex          ->clear();
+        trackWeight      ->clear();
         quality          ->clear();
         numberOfValidHits->clear();
         numberOfLostHits ->clear();
@@ -294,8 +310,8 @@ struct MyL1T : public MyTriggerBase
 struct MyHLT : public MyTriggerBase
 {
     std::vector<unsigned int> * index;
-    std::vector<int> * HLTprescale, // ??
-                     * L1prescale;  // ??
+    std::vector<int> * HLTprescale, // TODO??
+                     * L1prescale;  // TODO??
 
     MyHLT ()
         :   MyTriggerBase()
