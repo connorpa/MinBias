@@ -9,6 +9,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100000) )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         # TODO: write list of input files
+        # root://xrootd-cms.infn.it/
     )
 )
 process.TFileService = cms.Service("TFileService",

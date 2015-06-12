@@ -4,13 +4,13 @@ process = cms.Process("TreeProducer")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(90000) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'root://xrootd-cms.infn.it//store/data/Run2015A/ZeroBias1/RECO/PromptReco-v1/000/246/865/00000/C60316FA-150B-E511-AFCE-02163E0136E1.root',
-        'root://xrootd-cms.infn.it//store/data/Run2015A/ZeroBias1/RECO/PromptReco-v1/000/246/908/00000/0AE1AFA5-220B-E511-B7D4-02163E014239.root',
-        'root://xrootd-cms.infn.it//store/data/Run2015A/ZeroBias1/RECO/PromptReco-v1/000/246/908/00000/0CADC28A-390B-E511-853D-02163E0121C5.root',
+        #'root://xrootd-cms.infn.it//store/data/Run2015A/ZeroBias1/RECO/PromptReco-v1/000/246/865/00000/C60316FA-150B-E511-AFCE-02163E0136E1.root',
+        #'root://xrootd-cms.infn.it//store/data/Run2015A/ZeroBias1/RECO/PromptReco-v1/000/246/908/00000/0AE1AFA5-220B-E511-B7D4-02163E014239.root',
+        #'root://xrootd-cms.infn.it//store/data/Run2015A/ZeroBias1/RECO/PromptReco-v1/000/246/908/00000/0CADC28A-390B-E511-853D-02163E0121C5.root',
         'root://xrootd-cms.infn.it//store/data/Run2015A/ZeroBias1/RECO/PromptReco-v1/000/246/908/00000/10D9909F-260B-E511-9A53-02163E014113.root',
         'root://xrootd-cms.infn.it//store/data/Run2015A/ZeroBias1/RECO/PromptReco-v1/000/246/908/00000/168661B7-300B-E511-870A-02163E013653.root',
         'root://xrootd-cms.infn.it//store/data/Run2015A/ZeroBias1/RECO/PromptReco-v1/000/246/908/00000/1A1D4A18-2E0B-E511-9A5A-02163E012925.root',
@@ -266,11 +266,11 @@ process.source = cms.Source("PoolSource",
     )
 )
 process.TFileService = cms.Service("TFileService",
-        fileName = cms.string("/afs/desy.de/user/c/connorpa/CMSSW/CMSSW_7_4_0/src/MinBias/BasicTrackAnalysis/data/bonsai_data_7_June_Prompt_Reco_ZeroBias.root")
+        fileName = cms.string("/nfs/dust/cms/user/connorpa/dndeta_analysis_samples/bonsai_data_7_June_Prompt_Reco_ZeroBias_part2.root")
 )
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MCRUN2_74_V8::All' # TODO
+process.GlobalTag.globaltag = 'GR_P_V56::All' # TODO
 
 
 # TODO: adapt the input tags according to the content of the input files
@@ -288,16 +288,22 @@ process.minbiasdata = cms.EDAnalyzer('TreeProducer'
     , StoreHORecHit        = cms.bool(True ) , HORecHit        = cms.InputTag("horeco"                , ""             , "RECO")
     , StoreHFRecHit        = cms.bool(True ) , HFRecHit        = cms.InputTag("hfreco"                , ""             , "RECO")
     , StoreCaloTower       = cms.bool(True ) , CaloTower       = cms.InputTag("towerMaker"            , ""             , "RECO")
-    , StoreGenParticles    = cms.bool(True ) , GenParticles    = cms.InputTag("genParticles"          , ""             , "HLT" )
+    , StoreGenParticles    = cms.bool(False) , GenParticles    = cms.InputTag("genParticles"          , ""             , "HLT" )
 
     , StoreL1GT            = cms.bool(True ) , L1GT            = cms.InputTag("gtDigis"               , ""             , "RECO")
                                              , L1TT_requested  = cms.vstring('L1Tech_BSC_minBias_threshold1.v0',
                                                                              'L1Tech_BSC_minBias_threshold2.v0',
                                                                              'L1Tech_BPTX_plus_AND_minus.v0')
     , StoreHLT             = cms.bool(True ) , HLT             = cms.InputTag("TriggerResults"        , ""             , "HLT" )
-                                             , HLT_requested   = cms.vstring('HLT_ZeroBias_v1')
+                                             , HLT_requested   = cms.vstring('HLT_ZeroBias_part0_v1'
+                                                                            ,'HLT_ZeroBias_part1_v1'
+                                                                            ,'HLT_ZeroBias_part2_v1'
+                                                                            ,'HLT_ZeroBias_part3_v1'
+                                                                            ,'HLT_ZeroBias_part4_v1'
+                                                                            ,'HLT_ZeroBias_part5_v1'
+                                                                            ,'HLT_ZeroBias_part6_v1'
+                                                                            ,'HLT_ZeroBias_part7_v1')
 )
-
 
 
 process.p = cms.Path(process.minbiasdata)
